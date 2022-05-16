@@ -41,9 +41,6 @@ void GameScene::Initialize() {
 
 	//ライン描画が参照するビュープロジェクションを指定する
 	PrimitiveDrawer::GetInstance()->SetViewProjection(&debugCamera_->GetViewProjection());
-
-	//ライン描画が参照するビュープロジェクションを指定する
-	PrimitiveDrawer::GetInstance()->DrawLine3d
 }
 
 void GameScene::Update() {
@@ -65,6 +62,9 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに背景スプライトの描画処理を追加できる
 	/// </summary>
+		//ライン描画が参照するビュープロジェクションを指定する
+	
+	
 
 	// スプライト描画後処理
 	Sprite::PostDraw();
@@ -85,6 +85,14 @@ void GameScene::Draw() {
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
+
+	//線描画
+	for (int i = 0; i < 31; i++) {
+		PrimitiveDrawer::GetInstance()->DrawLine3d(Vector3(-15, -15+i, 0), Vector3(15, -15+i, 0), Vector4(0xff, 0x00, 0x00, 0xff));
+	}
+	for (int i = 0; i < 31; i++) {
+		PrimitiveDrawer::GetInstance()->DrawLine3d(Vector3(-15+i, -15, 0), Vector3(-15+i, 15, 0), Vector4(0x00, 0x00, 0xff, 0xff));
+	}
 #pragma endregion
 
 #pragma region 前景スプライト描画
