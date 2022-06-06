@@ -3,7 +3,6 @@
 #include <cassert>
 #include "AxisIndicator.h"
 #include "PrimitiveDrawer.h"
-#include <random>
 
 #define RADIAN(angle)angle*3.1415f/180
 #define PAI 3.1415f
@@ -16,15 +15,6 @@ GameScene::~GameScene() {
 }
 
 void GameScene::Initialize() {
-	//乱数シード生成器
-	std::random_device seed_gen;
-	//メルセンヌ・ツイスターの乱数エンジン
-	std::mt19937_64 engine(seed_gen());
-	//乱数範囲の指定
-	//回転
-	std::uniform_real_distribution<float> rotDist(0.0f, RADIAN(180.0f));
-	//座標
-	std::uniform_real_distribution<float> posDist(-10.0f, 10.0f);
 
 	dxCommon_ = DirectXCommon::GetInstance();
 	input_ = Input::GetInstance();
@@ -46,43 +36,38 @@ void GameScene::Initialize() {
 	Matrix4 matRot;
 	Matrix4 matTrans = MathUtility::Matrix4Identity();
 
-	for (WorldTransform& worldTransform : worldTransforms_) {
-		worldTransform.Initialize();
+	worldTransform_.Initialize();
 
-		//x,y,z軸方向のスケーリングを設定
-		worldTransform.scale_ = {1.0f, 1.0f, 1.0f};
-		// x,y,z軸周りの回転角を設定
-		worldTransform.rotation_ = { rotDist(engine), rotDist(engine), rotDist(engine) };
-		// x,y,z軸周りに平行移動を設定
-		worldTransform.translation_ = { posDist(engine), posDist(engine), posDist(engine) };
+	//x,y,z軸方向のスケーリングを設定
+	worldTransform_.scale_ = { 1.0f, 1.0f, 1.0f };
+	// x,y,z軸周りの回転角を設定
+	worldTransform_.rotation_ = { 0.0f,0.0f,0.0f };
+	// x,y,z軸周りに平行移動を設定
+	worldTransform_.translation_ = { 0.0f,0.0f,0.0f };
 
-		matScale.ScaleSet(worldTransform.scale_);
-		matRotZ.RotZSet(worldTransform.rotation_.z);
-		matRotX.RotXSet(worldTransform.rotation_.x);
-		matRotY.RotYSet(worldTransform.rotation_.y);
-		matTrans.TransSet(worldTransform.translation_);
+	matScale.ScaleSet(worldTransform_.scale_);
+	matRotZ.RotZSet(worldTransform_.rotation_.z);
+	matRotX.RotXSet(worldTransform_.rotation_.x);
+	matRotY.RotYSet(worldTransform_.rotation_.y);
+	matTrans.TransSet(worldTransform_.translation_);
 
-		matRot = matRotZ * matRotX * matRotY;
+	matRot = matRotZ * matRotX * matRotY;
 
-		//単位行列の設定
-		for (int i = 0; i < 4; i++) {
-			worldTransform.matWorld_.m[i][i] = 1.0f;
-		}
-		
-		//合成
-		worldTransform.matWorld_ = matScale * matRot * matTrans;
-
-		//行列の転送
-		worldTransform.TransferMatrix();
+	//単位行列の設定
+	for (int i = 0; i < 4; i++) {
+		worldTransform_.matWorld_.m[i][i] = 1.0f;
 	}
+	//合成
+	worldTransform_.matWorld_ = matScale * matRot * matTrans;
+	//行列の転送
+	worldTransform_.TransferMatrix();
+
+
 	//カメラ視点座標を設定
-	viewProjection_.eye = { 0.0f,0.0f,-50.0f };
+	viewProjection_.eye = { 0.0f,15.0f,-25.0f };
 
 	//カメラ注視点座標を設定
 	viewProjection_.target = { 0,0,0 };
-
-	//カメラ上方向ベクトルを設定(右上45度指定)
-	viewProjection_.up = { cosf(RADIAN(180.0f) / 4.0f),sinf(RADIAN(180.0f) / 4.0f),0.0f};
 
 	//ビュープロダクションの初期化
 	viewProjection_.Initialize();
@@ -101,39 +86,78 @@ void GameScene::Initialize() {
 
 
 void GameScene::Update() {
-	Vector3 eyeMove = { 0,0,0 };
-	Vector3 targetMove = { 0,0,0 };
-	const float kUpRotSpeed = 0.05f;
-	const float kEyeSpeed = 0.2f;
+	//正面ベクトルの長さの成分
+	Vector3 length = { 0, 0, 10 };
+	//正面ベクトルの長さ(大きさ)
+	float frontVecLength = 0;
+	//正面ベクトル
+	Vector3 frontVec = { 0, 0, 0 };
+	//始点
+	Vector3 start = { worldTransform_.translation_ };
+	//終点
+	Vector3 end = { 0, 0, 0 };
+	//オブジェクトの移動ベクトル
+	Vector3 move = { 0, 0, 0 };
+	//オブジェクトの回転ベクトル
+	Vector3 rotaMove = { 0, 0, 0 };
 
-	//視点移動
-	if (input_->PushKey(DIK_W)) {
-		eyeMove.z += kEyeSpeed;
-	}
-	else if (input_->PushKey(DIK_S)) {
-		eyeMove.z -= kEyeSpeed;
-	}
-	//注視点移動
-	if (input_->PushKey(DIK_A)) {
-		targetMove.x += kEyeSpeed;
-	}
-	else if (input_->PushKey(DIK_D)) {
-		targetMove.x -= kEyeSpeed;
-	}
-	//回転移動
-	if (input_->PushKey(DIK_SPACE)) {
-		viewAngle += kUpRotSpeed;
+	//オブジェクトの回転スピード
+	const float rotaSpeed = 0.05f;
 
-		viewAngle = fmodf(viewAngle, PAI * 2.0f);
+	//オブジェクトの回転
+	if (input_->PushKey(DIK_RIGHT)) {
+		rotaMove = { 0, rotaSpeed, 0 };
 	}
-	//視点移動
-	viewProjection_.eye += eyeMove;
-	//注視点移動
-	viewProjection_.target += targetMove;
-	//回転移動
-	viewProjection_.up = { cosf(viewAngle),sinf(viewAngle),0.0f };
+	else if (input_->PushKey(DIK_LEFT)) {
+		rotaMove = { 0, -rotaSpeed, 0 };
+	}
 
-	//行列の再計算
+	//終点座標を設定
+	end.x = start.x + length.x;
+	end.y = start.y + length.y;
+	end.z = start.z + length.z;
+
+	//回転を考慮した座標を設定
+	end.x = start.x + sinf(worldTransform_.rotation_.y);
+	end.z = start.z + cosf(worldTransform_.rotation_.y);
+
+	//始点と終点から正面ベクトルを求める
+	frontVec.x = end.x - start.x;
+	frontVec.y = end.y - start.y;
+	frontVec.z = end.z - start.z;
+
+	//正面ベクトルの長さ
+	frontVecLength = sqrtf(
+		(length.x * length.x) +
+		(length.y * length.y) +
+		(length.z * length.z));
+
+	//正面ベクトルの正規化
+	frontVec.x /= frontVecLength;
+	frontVec.y /= frontVecLength;
+	frontVec.z /= frontVecLength;
+
+	//始点座標に正面ベクトルの値を加算or減算
+	if (input_->PushKey(DIK_UP)) {
+		start.x += frontVec.x;
+		start.y += frontVec.y;
+		start.z += frontVec.z;
+	}
+	else if (input_->PushKey(DIK_DOWN)) {
+		start.x -= frontVec.x;
+		start.y -= frontVec.y;
+		start.z -= frontVec.z;
+	}
+
+	//ベクトルの加算
+	worldTransform_.translation_.x = start.x;
+	worldTransform_.translation_.z = start.z;
+
+	//回転
+	worldTransform_.rotation_.y += rotaMove.y;
+
+	//再計算
+	worldTransform_.TransferMatrix();
 	viewProjection_.UpdateMatrix();
 
 	//デバッグ表示
@@ -193,9 +217,9 @@ void GameScene::Draw() {
 	/// </summary>
 
 	//モデル描画
-	for (WorldTransform& worldTransform : worldTransforms_) {
-		model_->Draw(worldTransform, viewProjection_, textureHandle_);
-	}
+	
+	model_->Draw(worldTransform_, viewProjection_, textureHandle_);
+	
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();

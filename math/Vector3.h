@@ -14,6 +14,8 @@ class Vector3 {
 	// コンストラクタ
 	Vector3();                          // 零ベクトルとする
 	Vector3(float x, float y, float z); // x成分, y成分, z成分 を指定しての生成
+
+	Vector3 cross(const Vector3& v) const;	//外積を求める
 	  
 	// 単項演算子オーバーロード
 	Vector3 operator+() const;
@@ -25,3 +27,10 @@ class Vector3 {
 	Vector3& operator*=(float s);
 	Vector3& operator/=(float s);
 };
+
+
+const Vector3 operator+(const Vector3& v1, const Vector3& v2);
+const Vector3 operator-(const Vector3& v1, const Vector3& v2);
+const Vector3 operator*(const Vector3& v, float s);
+const Vector3 operator*(float s, const Vector3& v);
+const Vector3 operator/(const Vector3& v, float s);
