@@ -76,7 +76,7 @@ void GameScene::Initialize() {
 	AxisIndicator::GetInstance()->SetVisible(true);
 
 	//軸方向表示が参照するビュープロジェクションを指定する
-	AxisIndicator::GetInstance()->SetTargetViewProjection(&viewProjection_);
+	AxisIndicator::GetInstance()->SetTargetViewProjection(&debugCamera_->GetViewProjection());
 
 	//ライン描画が参照するビュープロジェクションを指定する
 	PrimitiveDrawer::GetInstance()->SetViewProjection(&debugCamera_->GetViewProjection());
@@ -104,6 +104,9 @@ void GameScene::Update() {
 	Vector3 tmpVecY = { 0,1,0 };
 
 	Vector3 moveXVec = { 0,0,0 };
+
+	Vector3 eyeMove = { 0,0,0 };
+	float kEyeSpeed = 0.5f;
 
 	//オブジェクトの回転スピード
 	const float rotaSpeed = 0.05f;
@@ -144,10 +147,10 @@ void GameScene::Update() {
 	//　バイオ歩き　//
 	if (isMode == 1) {
 		//オブジェクトの回転
-		if (input_->PushKey(DIK_RIGHT)) {
+		if (input_->PushKey(DIK_D)) {
 			rotaMove = { 0, rotaSpeed, 0 };
 		}
-		else if (input_->PushKey(DIK_LEFT)) {
+		else if (input_->PushKey(DIK_A)) {
 			rotaMove = { 0, -rotaSpeed, 0 };
 		}
 
@@ -177,12 +180,12 @@ void GameScene::Update() {
 		frontVec.z /= frontVecLength;
 
 		//始点座標に正面ベクトルの値を加算or減算
-		if (input_->PushKey(DIK_UP)) {
+		if (input_->PushKey(DIK_W)) {
 			start.x += frontVec.x;
 			start.y += frontVec.y;
 			start.z += frontVec.z;
 		}
-		else if (input_->PushKey(DIK_DOWN)) {
+		else if (input_->PushKey(DIK_S)) {
 			start.x -= frontVec.x;
 			start.y -= frontVec.y;
 			start.z -= frontVec.z;
@@ -246,6 +249,9 @@ void GameScene::Update() {
 		frontVec.y,
 		frontVec.z);
 
+	debugText_->SetPos(50, 90);
+	debugText_->Printf("eyespeed %f", kEyeSpeed);
+
 	//デバッグカメラの更新
 	debugCamera_->Update();
 }
@@ -282,7 +288,7 @@ void GameScene::Draw() {
 
 	//モデル描画
 	
-	model_->Draw(worldTransform_, viewProjection_, textureHandle_);
+	model_->Draw(worldTransform_, debugCamera_->GetViewProjection(), textureHandle_);
 	
 
 	// 3Dオブジェクト描画後処理
