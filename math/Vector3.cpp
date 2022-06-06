@@ -1,4 +1,5 @@
 #include "Vector3.h"
+#include <cmath>
 
 Vector3::Vector3() :x(0), y(0), z(0)
 {
@@ -6,6 +7,20 @@ Vector3::Vector3() :x(0), y(0), z(0)
 
 Vector3::Vector3(float x, float y, float z) : x(x), y(y), z(z)
 {
+}
+
+float Vector3::length() const
+{
+	return sqrtf((x * x) + (y * y) + (z * z));
+}
+
+Vector3& Vector3::normalize()
+{
+	float len = length();
+	if (len != 0) {
+		return *this /= len;
+	}
+	return *this;
 }
 
 Vector3 Vector3::cross(const Vector3& v) const

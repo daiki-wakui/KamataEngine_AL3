@@ -68,4 +68,5 @@ class GameScene {
 	ViewProjection viewProjection_;
 
 	float viewAngle = 0.0f;
+	int isMode = 0;
 };

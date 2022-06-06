@@ -101,86 +101,150 @@ void GameScene::Update() {
 	//オブジェクトの回転ベクトル
 	Vector3 rotaMove = { 0, 0, 0 };
 
+	Vector3 tmpVecY = { 0,1,0 };
+
+	Vector3 moveXVec = { 0,0,0 };
+
 	//オブジェクトの回転スピード
 	const float rotaSpeed = 0.05f;
 
-	//オブジェクトの回転
-	if (input_->PushKey(DIK_RIGHT)) {
-		rotaMove = { 0, rotaSpeed, 0 };
-	}
-	else if (input_->PushKey(DIK_LEFT)) {
-		rotaMove = { 0, -rotaSpeed, 0 };
-	}
-
-	//終点座標を設定
-	end.x = start.x + length.x;
-	end.y = start.y + length.y;
-	end.z = start.z + length.z;
-
-	//回転を考慮した座標を設定
-	end.x = start.x + sinf(worldTransform_.rotation_.y);
-	end.z = start.z + cosf(worldTransform_.rotation_.y);
-
-	//始点と終点から正面ベクトルを求める
-	frontVec.x = end.x - start.x;
-	frontVec.y = end.y - start.y;
-	frontVec.z = end.z - start.z;
-
-	//正面ベクトルの長さ
-	frontVecLength = sqrtf(
-		(length.x * length.x) +
-		(length.y * length.y) +
-		(length.z * length.z));
-
-	//正面ベクトルの正規化
-	frontVec.x /= frontVecLength;
-	frontVec.y /= frontVecLength;
-	frontVec.z /= frontVecLength;
-
-	//始点座標に正面ベクトルの値を加算or減算
-	if (input_->PushKey(DIK_UP)) {
-		start.x += frontVec.x;
-		start.y += frontVec.y;
-		start.z += frontVec.z;
-	}
-	else if (input_->PushKey(DIK_DOWN)) {
-		start.x -= frontVec.x;
-		start.y -= frontVec.y;
-		start.z -= frontVec.z;
+	//モード切り替え
+	if (input_->TriggerKey(DIK_Q)) {
+		if (isMode == 0) {
+			isMode = 1;
+		}
+		else {
+			isMode = 0;
+		}
 	}
 
-	//ベクトルの加算
-	worldTransform_.translation_.x = start.x;
-	worldTransform_.translation_.z = start.z;
+	if (isMode == 0) {
+		frontVec.x = worldTransform_.translation_.x - viewProjection_.eye.x;
+		frontVec.z = worldTransform_.translation_.z - viewProjection_.eye.z;
 
-	//回転
-	worldTransform_.rotation_.y += rotaMove.y;
+		frontVec.normalize();
 
-	//再計算
+		if (input_->PushKey(DIK_W)) {
+			worldTransform_.translation_ += frontVec/5;
+		}
+		else if (input_->PushKey(DIK_S)) {
+			worldTransform_.translation_ -= frontVec/5;
+		}
+
+		moveXVec = tmpVecY.cross(frontVec);
+
+		if (input_->PushKey(DIK_D)) {
+			worldTransform_.translation_.x += moveXVec.x/5;
+		}
+		else if (input_->PushKey(DIK_A)) {
+			worldTransform_.translation_.x -= moveXVec.x/5;
+		}
+	}
+
+	//　バイオ歩き　//
+	if (isMode == 1) {
+		//オブジェクトの回転
+		if (input_->PushKey(DIK_RIGHT)) {
+			rotaMove = { 0, rotaSpeed, 0 };
+		}
+		else if (input_->PushKey(DIK_LEFT)) {
+			rotaMove = { 0, -rotaSpeed, 0 };
+		}
+
+		//終点座標を設定
+		end.x = start.x + length.x;
+		end.y = start.y + length.y;
+		end.z = start.z + length.z;
+
+		//回転を考慮した座標を設定
+		end.x = start.x + sinf(worldTransform_.rotation_.y);
+		end.z = start.z + cosf(worldTransform_.rotation_.y);
+
+		//始点と終点から正面ベクトルを求める
+		frontVec.x = end.x - start.x;
+		frontVec.y = end.y - start.y;
+		frontVec.z = end.z - start.z;
+
+		//正面ベクトルの長さ
+		frontVecLength = sqrtf(
+			(length.x * length.x) +
+			(length.y * length.y) +
+			(length.z * length.z));
+
+		//正面ベクトルの正規化
+		frontVec.x /= frontVecLength;
+		frontVec.y /= frontVecLength;
+		frontVec.z /= frontVecLength;
+
+		//始点座標に正面ベクトルの値を加算or減算
+		if (input_->PushKey(DIK_UP)) {
+			start.x += frontVec.x;
+			start.y += frontVec.y;
+			start.z += frontVec.z;
+		}
+		else if (input_->PushKey(DIK_DOWN)) {
+			start.x -= frontVec.x;
+			start.y -= frontVec.y;
+			start.z -= frontVec.z;
+		}
+
+		//ベクトルの加算
+		worldTransform_.translation_.x = start.x;
+		worldTransform_.translation_.z = start.z;
+
+		//回転
+		worldTransform_.rotation_.y += rotaMove.y;
+	}//　バイオ歩き　//
+	
+
+	Matrix4 matScale;
+	Matrix4 matRotX, matRotY, matRotZ;
+	Matrix4 matRot;
+	Matrix4 matTrans = MathUtility::Matrix4Identity();
+
+	matScale.ScaleSet(worldTransform_.scale_);
+	matRotZ.RotZSet(worldTransform_.rotation_.z);
+	matRotX.RotXSet(worldTransform_.rotation_.x);
+	matRotY.RotYSet(worldTransform_.rotation_.y);
+	matTrans.TransSet(worldTransform_.translation_);
+
+	matRot = matRotZ * matRotX * matRotY;
+
+	//単位行列の設定
+	for (int i = 0; i < 4; i++) {
+		worldTransform_.matWorld_.m[i][i] = 1.0f;
+	}
+	//合成
+	worldTransform_.matWorld_ = matScale * matRot * matTrans;
+
+	//行列の送信
 	worldTransform_.TransferMatrix();
 	viewProjection_.UpdateMatrix();
 
 	//デバッグ表示
+	debugText_->SetPos(50, 10);
+	debugText_->Printf("mode %d",isMode);
+
 	debugText_->SetPos(50, 30);
 	debugText_->Printf(
-		"eye W/S:(%f,%f,%f)",
+		"pos:(%f,%f,%f)",
+		worldTransform_.translation_.x,
+		worldTransform_.translation_.y,
+		worldTransform_.translation_.z);
+
+	debugText_->SetPos(50, 50);
+	debugText_->Printf(
+		"eye:(%f,%f,%f)",
 		viewProjection_.eye.x,
 		viewProjection_.eye.y,
 		viewProjection_.eye.z);
 
-	debugText_->SetPos(50, 50);
-	debugText_->Printf(
-		"target A/D:(%f,%f,%f)",
-		viewProjection_.target.x,
-		viewProjection_.target.y,
-		viewProjection_.target.z);
-
 	debugText_->SetPos(50, 70);
 	debugText_->Printf(
-		"up Space:(%f,%f,%f)",
-		viewProjection_.up.x,
-		viewProjection_.up.y,
-		viewProjection_.up.z);
+		"frontVec:(%f,%f,%f)",
+		frontVec.x,
+		frontVec.y,
+		frontVec.z);
 
 	//デバッグカメラの更新
 	debugCamera_->Update();
