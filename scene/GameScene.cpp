@@ -225,32 +225,25 @@ void GameScene::Update() {
 	viewProjection_.UpdateMatrix();
 
 	//デバッグ表示
-	debugText_->SetPos(50, 10);
-	debugText_->Printf("mode %d",isMode);
-
-	debugText_->SetPos(50, 30);
+	debugText_->SetPos(10, 10);
+	if (isMode == 0) {
+		debugText_->Printf("CameraMove Mode", isMode);
+	}
+	else {
+		debugText_->Printf("BioWalking Mode", isMode);
+	}
+	debugText_->SetPos(10, 30);
+	debugText_->Printf("Q Key : ModeSwitch");
+	debugText_->SetPos(10, 50);
+	debugText_->Printf("WASD Key : PlayerMove");
+	debugText_->SetPos(10, 70);
+	debugText_->Printf("Mouse : DebugCamera");
+	debugText_->SetPos(10, 90);
 	debugText_->Printf(
 		"pos:(%f,%f,%f)",
 		worldTransform_.translation_.x,
 		worldTransform_.translation_.y,
 		worldTransform_.translation_.z);
-
-	debugText_->SetPos(50, 50);
-	debugText_->Printf(
-		"eye:(%f,%f,%f)",
-		viewProjection_.eye.x,
-		viewProjection_.eye.y,
-		viewProjection_.eye.z);
-
-	debugText_->SetPos(50, 70);
-	debugText_->Printf(
-		"frontVec:(%f,%f,%f)",
-		frontVec.x,
-		frontVec.y,
-		frontVec.z);
-
-	debugText_->SetPos(50, 90);
-	debugText_->Printf("eyespeed %f", kEyeSpeed);
 
 	//デバッグカメラの更新
 	debugCamera_->Update();
