@@ -28,4 +28,5 @@ class Matrix4 {
 	void RotXSet(float &x);
 	void RotYSet(float& y);
 	void RotZSet(float& z);
+	void TransSet(Vector3& v);
 };

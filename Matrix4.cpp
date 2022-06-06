@@ -62,7 +62,12 @@ void Matrix4::RotZSet(float& z){
 	m[3][3] = 1.0f;
 }
 
-
+void Matrix4::TransSet(Vector3& v) {
+	m[3][0] = v.x;
+	m[3][1] = v.y;
+	m[3][2] = v.z;
+	m[3][3] = 1.0f;
+}
 
 
 
