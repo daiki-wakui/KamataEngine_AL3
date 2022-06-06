@@ -3,6 +3,7 @@
 #include <cassert>
 #include "AxisIndicator.h"
 #include "PrimitiveDrawer.h"
+#include <random>
 
 #define Radian(angle)angle*3.1415f/180
 
@@ -14,6 +15,18 @@ GameScene::~GameScene() {
 }
 
 void GameScene::Initialize() {
+
+	//乱数シード生成器
+	std::random_device seed_gen;
+
+	//メルセンヌ・ツイスターの乱数エンジン
+	std::mt19937_64 engine(seed_gen());
+
+	//乱数範囲の指定
+	//回転
+	std::uniform_real_distribution<float> rotDist(0.0f, Radian(180.0f));
+	//座標
+	std::uniform_real_distribution<float> posDist(-10.0f, 10.0f);
 
 	dxCommon_ = DirectXCommon::GetInstance();
 	input_ = Input::GetInstance();
@@ -30,7 +43,35 @@ void GameScene::Initialize() {
 	model_ = Model::Create();
 
 	//ワールドトランスフォームの初期化
-	worldTransform_.Initialize();
+	Matrix4 matScale;
+	Matrix4 matRotX, matRotY, matRotZ;
+	Matrix4 matRot;
+	Matrix4 matTrans = MathUtility::Matrix4Identity();
+
+	for (WorldTransform& worldTransform : worldTransforms_) {
+		
+		//worldTransform.Initialize();
+		worldTransforms_->Initialize();
+
+		//x,y,z軸方向のスケーリングを設定
+		worldTransforms_->scale_ = {1.0f, 1.0f, 1.0f};
+		// x,y,z軸周りの回転角を設定
+		worldTransforms_->rotation_ = { rotDist(engine), rotDist(engine), rotDist(engine) };
+		// x,y,z軸周りに平行移動を設定
+		worldTransforms_->translation_ = { posDist(engine), posDist(engine), posDist(engine) };
+
+		matScale.ScaleSet(worldTransforms_->scale_);
+		matRotZ.RotZSet(worldTransforms_->rotation_.z);
+		matRotX.RotXSet(worldTransforms_->rotation_.x);
+		matRotY.RotYSet(worldTransforms_->rotation_.y);
+		matTrans.TransSet(worldTransforms_->translation_);
+
+		matRot = matRotZ * matRotX * matRotY;
+
+
+		//行列の転送
+		worldTransforms_->TransferMatrix();
+	}
 
 	//ビュープロダクションの初期化
 	viewProjection_.Initialize();
@@ -44,74 +85,7 @@ void GameScene::Initialize() {
 	//ライン描画が参照するビュープロジェクションを指定する
 	PrimitiveDrawer::GetInstance()->SetViewProjection(&debugCamera_->GetViewProjection());
 
-	//スケール
-	worldTransform_.scale_ = { 5.0f,5.0f,5.0f };
-
-	//worldTransform_.rotation_ = { 0.0f,0.0f,Radian(45.0f) };
-	//worldTransform_.rotation_ = { Radian(45.0f),0.0f,0.0f };
-	worldTransform_.rotation_ = { Radian(45.0f),Radian(45.0f),Radian(45.0f) };
-
-	worldTransform_.translation_ = { 10,10,10 };
-
-	Matrix4 matScale;
-	Matrix4 matRot;
-	Matrix4 matTrans = MathUtility::Matrix4Identity();
-
-	//回転行列
-	Matrix4 matRotX, matRotY, matRotZ;
-
-	matScale.ScaleSet(worldTransform_.scale_);
-
-	matRotZ.RotZSet(worldTransform_.rotation_.z);
-	matRotX.RotXSet(worldTransform_.rotation_.x);
-	matRotY.RotYSet(worldTransform_.rotation_.y);
-
-	//スケール
-	/*matScale.m[0][0] = worldTransform_.scale_.x;
-	matScale.m[1][1] = worldTransform_.scale_.y;
-	matScale.m[2][2] = worldTransform_.scale_.z;
-	matScale.m[3][3] = 1.0f;*/
-
-	/*matRotX.m[1][1] = cos(worldTransform_.rotation_.x);
-	matRotX.m[1][2] = sin(worldTransform_.rotation_.x);
-	matRotX.m[2][1] = -sin(worldTransform_.rotation_.x);
-	matRotX.m[2][2] = cos(worldTransform_.rotation_.x);
-	matRotX.m[0][0] = 1.0f;
-	matRotX.m[3][3] = 1.0f;*/
-
-	//matRotY.m[0][0] = cos(worldTransform_.rotation_.y);
-	//matRotY.m[0][2] = -sin(worldTransform_.rotation_.y);
-	//matRotY.m[2][0] = sin(worldTransform_.rotation_.y);
-	//matRotY.m[2][2] = cos(worldTransform_.rotation_.y);
-	//matRotY.m[1][1] = 1.0f;
-	//matRotY.m[3][3] = 1.0f;
-
-	//matRotZ.m[0][0] = cos(worldTransform_.rotation_.z);
-	//matRotZ.m[0][1] = sin(worldTransform_.rotation_.z);
-	//matRotZ.m[1][0] = -sin(worldTransform_.rotation_.z);
-	//matRotZ.m[1][1] = cos(worldTransform_.rotation_.z);
-	//matRotZ.m[2][2] = 1.0f;
-	//matRotZ.m[3][3] = 1.0f;
-
-	matTrans.m[3][0] = worldTransform_.translation_.x;
-	matTrans.m[3][1] = worldTransform_.translation_.y;
-	matTrans.m[3][2] = worldTransform_.translation_.z;
-	matTrans.m[3][3] = 1.0f;
-
-	matRot = matRotZ * matRotX * matRotY;
-
-	//単位行列の設定
-	for (int i = 0; i < 4; i++) {
-		worldTransform_.matWorld_.m[i][i] = 1.0f;
-	}
-	//worldTransform_.matWorld_ *= matScale;
-	worldTransform_.matWorld_ *= matRot ;
-	//worldTransform_.matWorld_ *= matTrans;
-
-	//worldTransform_.matWorld_ = matScale * matRot * matTrans;
-
-	//行列の転送
-	worldTransform_.TransferMatrix();
+	
 }
 
 
@@ -152,7 +126,10 @@ void GameScene::Draw() {
 	/// </summary>
 
 	//モデル描画
-	model_->Draw(worldTransform_, debugCamera_->GetViewProjection(), textureHandle_);
+	for (WorldTransform& worldTransform : worldTransforms_) {
+		model_->Draw(worldTransform, debugCamera_->GetViewProjection(), textureHandle_);
+	}
+	
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
