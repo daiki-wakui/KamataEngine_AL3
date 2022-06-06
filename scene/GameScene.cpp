@@ -68,6 +68,13 @@ void GameScene::Initialize() {
 
 		matRot = matRotZ * matRotX * matRotY;
 
+		//単位行列の設定
+		for (int i = 0; i < 4; i++) {
+			worldTransforms_->matWorld_.m[i][i] = 1.0f;
+		}
+		
+		//合成
+		worldTransforms_->matWorld_ = matScale * matRot * matTrans;
 
 		//行列の転送
 		worldTransforms_->TransferMatrix();
