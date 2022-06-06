@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "Vector3.h"
 
 /// <summary>
 /// 行列
@@ -20,5 +21,11 @@ class Matrix4 {
 	// 代入演算子オーバーロード
 	Matrix4& operator*=(const Matrix4& m2);
 
-	Matrix4& operator*(const Matrix4& m2);
+	Matrix4 operator*(const Matrix4& m2);
+
+	//Matrix4 ScaleSet(float& x, float& y, float& z);
+	void ScaleSet(Vector3& v);
+	void RotXSet(float &x);
+	void RotYSet(float& y);
+	void RotZSet(float& z);
 };

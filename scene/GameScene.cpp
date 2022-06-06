@@ -49,7 +49,7 @@ void GameScene::Initialize() {
 
 	//worldTransform_.rotation_ = { 0.0f,0.0f,Radian(45.0f) };
 	//worldTransform_.rotation_ = { Radian(45.0f),0.0f,0.0f };
-	worldTransform_.rotation_ = { Radian(45.0f),Radian(45.0f),0 };
+	worldTransform_.rotation_ = { Radian(45.0f),Radian(45.0f),Radian(45.0f) };
 
 	worldTransform_.translation_ = { 10,10,10 };
 
@@ -60,33 +60,38 @@ void GameScene::Initialize() {
 	//回転行列
 	Matrix4 matRotX, matRotY, matRotZ;
 
+	matScale.ScaleSet(worldTransform_.scale_);
+
+	matRotZ.RotZSet(worldTransform_.rotation_.z);
+	matRotX.RotXSet(worldTransform_.rotation_.x);
+	matRotY.RotYSet(worldTransform_.rotation_.y);
+
 	//スケール
-	matScale.m[0][0] = worldTransform_.scale_.x;
+	/*matScale.m[0][0] = worldTransform_.scale_.x;
 	matScale.m[1][1] = worldTransform_.scale_.y;
 	matScale.m[2][2] = worldTransform_.scale_.z;
-	matScale.m[3][3] = 1.0f;
+	matScale.m[3][3] = 1.0f;*/
 
-	matRotX.m[1][1] = cos(worldTransform_.rotation_.x);
+	/*matRotX.m[1][1] = cos(worldTransform_.rotation_.x);
 	matRotX.m[1][2] = sin(worldTransform_.rotation_.x);
 	matRotX.m[2][1] = -sin(worldTransform_.rotation_.x);
 	matRotX.m[2][2] = cos(worldTransform_.rotation_.x);
 	matRotX.m[0][0] = 1.0f;
-	matRotX.m[3][3] = 1.0f;
-	//matRotX.SetMatRot(worldTransform_);
+	matRotX.m[3][3] = 1.0f;*/
 
-	matRotY.m[0][0] = cos(worldTransform_.rotation_.y);
-	matRotY.m[0][2] = -sin(worldTransform_.rotation_.y);
-	matRotY.m[2][0] = sin(worldTransform_.rotation_.y);
-	matRotY.m[2][2] = cos(worldTransform_.rotation_.y);
-	matRotY.m[1][1] = 1.0f;
-	matRotY.m[3][3] = 1.0f;
+	//matRotY.m[0][0] = cos(worldTransform_.rotation_.y);
+	//matRotY.m[0][2] = -sin(worldTransform_.rotation_.y);
+	//matRotY.m[2][0] = sin(worldTransform_.rotation_.y);
+	//matRotY.m[2][2] = cos(worldTransform_.rotation_.y);
+	//matRotY.m[1][1] = 1.0f;
+	//matRotY.m[3][3] = 1.0f;
 
-	matRotZ.m[0][0] = cos(worldTransform_.rotation_.z);
-	matRotZ.m[0][1] = sin(worldTransform_.rotation_.z);
-	matRotZ.m[1][0] = -sin(worldTransform_.rotation_.z);
-	matRotZ.m[1][1] = cos(worldTransform_.rotation_.z);
-	matRotZ.m[2][2] = 1.0f;
-	matRotZ.m[3][3] = 1.0f;
+	//matRotZ.m[0][0] = cos(worldTransform_.rotation_.z);
+	//matRotZ.m[0][1] = sin(worldTransform_.rotation_.z);
+	//matRotZ.m[1][0] = -sin(worldTransform_.rotation_.z);
+	//matRotZ.m[1][1] = cos(worldTransform_.rotation_.z);
+	//matRotZ.m[2][2] = 1.0f;
+	//matRotZ.m[3][3] = 1.0f;
 
 	matTrans.m[3][0] = worldTransform_.translation_.x;
 	matTrans.m[3][1] = worldTransform_.translation_.y;
@@ -99,12 +104,11 @@ void GameScene::Initialize() {
 	for (int i = 0; i < 4; i++) {
 		worldTransform_.matWorld_.m[i][i] = 1.0f;
 	}
-	/*worldTransform_.matWorld_ *= matScale;
-	worldTransform_.matWorld_ *= matRot;
-	worldTransform_.matWorld_ *= matTrans;*/
-	
+	//worldTransform_.matWorld_ *= matScale;
+	worldTransform_.matWorld_ *= matRot ;
+	//worldTransform_.matWorld_ *= matTrans;
 
-	worldTransform_.matWorld_ = matScale * matRot * matTrans;
+	//worldTransform_.matWorld_ = matScale * matRot * matTrans;
 
 	//行列の転送
 	worldTransform_.TransferMatrix();
