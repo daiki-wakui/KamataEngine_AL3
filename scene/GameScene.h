@@ -66,4 +66,6 @@ class GameScene {
 
 	//ビュープロジェクション
 	ViewProjection viewProjection_;
+
+	float viewAngle = 0.0f;
 };
