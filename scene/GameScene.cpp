@@ -111,6 +111,9 @@ void GameScene::Update() {
 	//オブジェクトの回転スピード
 	const float rotaSpeed = 0.05f;
 
+	Vector3 CameraVec = { 0,0,0 };
+	Vector3 CameraRot = { 0,0,0 };
+
 	//モード切り替え
 	if (input_->TriggerKey(DIK_Q)) {
 		if (isMode == 0) {
@@ -121,26 +124,48 @@ void GameScene::Update() {
 		}
 	}
 
+	CameraVec.x = viewProjection_.eye.x - worldTransform_.translation_.x;
+	CameraVec.z = viewProjection_.eye.z - worldTransform_.translation_.z;
+	CameraVec.normalize();
+	CameraRot = tmpVecY.cross(CameraVec);
+
+	if (input_->PushKey(DIK_RIGHT)) {
+		viewProjection_.eye.x += CameraRot.x;
+		viewProjection_.eye.z += CameraRot.z;
+	}
+	if (input_->PushKey(DIK_LEFT)) {
+		viewProjection_.eye.x -= CameraRot.x;
+		viewProjection_.eye.z -= CameraRot.z;
+	}
+
 	if (isMode == 0) {
 		frontVec.x = worldTransform_.translation_.x - viewProjection_.eye.x;
 		frontVec.z = worldTransform_.translation_.z - viewProjection_.eye.z;
 
 		frontVec.normalize();
 
+		//if (input_->PushKey(DIK_W)) {
+		//	worldTransform_.translation_.z += frontVec.z/5;
+		//}
+		//else if (input_->PushKey(DIK_S)) {
+		//	worldTransform_.translation_.z -= frontVec.z/5;
+		//}
+
+
 		if (input_->PushKey(DIK_W)) {
-			worldTransform_.translation_ += frontVec/5;
+			worldTransform_.translation_ += frontVec / 5;
 		}
 		else if (input_->PushKey(DIK_S)) {
-			worldTransform_.translation_ -= frontVec/5;
+			worldTransform_.translation_ -= frontVec / 5;
 		}
 
 		moveXVec = tmpVecY.cross(frontVec);
 
 		if (input_->PushKey(DIK_D)) {
-			worldTransform_.translation_.x += moveXVec.x/5;
+			worldTransform_.translation_ += moveXVec/5;
 		}
 		else if (input_->PushKey(DIK_A)) {
-			worldTransform_.translation_.x -= moveXVec.x/5;
+			worldTransform_.translation_ -= moveXVec/5;
 		}
 	}
 
@@ -237,7 +262,7 @@ void GameScene::Update() {
 	debugText_->SetPos(10, 50);
 	debugText_->Printf("WASD Key : PlayerMove");
 	debugText_->SetPos(10, 70);
-	debugText_->Printf("Mouse : DebugCamera");
+	debugText_->Printf("RightKey LeftKey : Camera");
 	debugText_->SetPos(10, 90);
 	debugText_->Printf(
 		"pos:(%f,%f,%f)",
