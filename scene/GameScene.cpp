@@ -110,47 +110,18 @@ void GameScene::Initialize() {
 
 
 void GameScene::Update() {
-	//Vector3 eyeMove = { 0,0,0 };
-	//Vector3 targetMove = { 0,0,0 };
-	//const float kUpRotSpeed = 0.05f;
-	//const float kEyeSpeed = 0.2f;
-
-	////視点移動
-	//if (input_->PushKey(DIK_W)) {
-	//	eyeMove.z += kEyeSpeed;
-	//}
-	//else if (input_->PushKey(DIK_S)) {
-	//	eyeMove.z -= kEyeSpeed;
-	//}
-	////注視点移動
-	//if (input_->PushKey(DIK_A)) {
-	//	targetMove.x += kEyeSpeed;
-	//}
-	//else if (input_->PushKey(DIK_D)) {
-	//	targetMove.x -= kEyeSpeed;
-	//}
-	////回転移動
-	//if (input_->PushKey(DIK_SPACE)) {
-	//	viewAngle += kUpRotSpeed;
-
-	//	viewAngle = fmodf(viewAngle, PAI * 2.0f);
-	//}
-	////視点移動
-	//viewProjection_.eye += eyeMove;
-	////注視点移動
-	//viewProjection_.target += targetMove;
-	////回転移動
-	//viewProjection_.up = { cosf(viewAngle),sinf(viewAngle),0.0f };
-
+	//視野角を広げる
 	if (input_->PushKey(DIK_UP)) {
 		viewProjection_.fovAngleY += 0.01f;
 		viewProjection_.fovAngleY = min(viewProjection_.fovAngleY, PAI);
 	}
+	//視野角を狭める
 	else if (input_->PushKey(DIK_DOWN)) {
 		viewProjection_.fovAngleY -= 0.01f;
 		viewProjection_.fovAngleY = max(viewProjection_.fovAngleY, 0.01f);
 	}
 
+	//ニアクリップ距離を増減
 	if (input_->PushKey(DIK_W)) {
 		viewProjection_.nearZ += 0.05f;
 	}
