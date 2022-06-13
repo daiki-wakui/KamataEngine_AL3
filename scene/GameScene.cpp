@@ -139,33 +139,27 @@ void GameScene::Update() {
 	}
 
 	if (isMode == 0) {
-		frontVec.x = worldTransform_.translation_.x - viewProjection_.eye.x;
-		frontVec.z = worldTransform_.translation_.z - viewProjection_.eye.z;
+
+		frontVec.x = viewProjection_.eye.x - viewProjection_.target.x;
+		frontVec.z = viewProjection_.eye.z - viewProjection_.target.z;
 
 		frontVec.normalize();
 
-		//if (input_->PushKey(DIK_W)) {
-		//	worldTransform_.translation_.z += frontVec.z/5;
-		//}
-		//else if (input_->PushKey(DIK_S)) {
-		//	worldTransform_.translation_.z -= frontVec.z/5;
-		//}
-
 
 		if (input_->PushKey(DIK_W)) {
-			worldTransform_.translation_ += frontVec / 5;
+			worldTransform_.translation_ -= frontVec / 5;
 		}
 		else if (input_->PushKey(DIK_S)) {
-			worldTransform_.translation_ -= frontVec / 5;
+			worldTransform_.translation_ += frontVec / 5;
 		}
 
 		moveXVec = tmpVecY.cross(frontVec);
 
 		if (input_->PushKey(DIK_D)) {
-			worldTransform_.translation_ += moveXVec/5;
+			worldTransform_.translation_ -= moveXVec/5;
 		}
 		else if (input_->PushKey(DIK_A)) {
-			worldTransform_.translation_ -= moveXVec/5;
+			worldTransform_.translation_ += moveXVec/5;
 		}
 	}
 
