@@ -62,15 +62,25 @@ private: // メンバ変数
 	Model* model_ = nullptr;
 
 	//ワールドトランスフォーム
-	WorldTransform worldTransforms_[2];
+	WorldTransform worldTransforms_[9];
 
 	//ビュープロジェクション
 	ViewProjection viewProjection_;
 
 	float viewAngle = 0.0f;
-
+	int i;
 	enum PartId {
-		Root,
-		Spine,
+		kRoot,
+		kSpine,
+		kChest,
+		kHead,
+		kArmL,
+		kArmR,
+		kHip,
+		kLegL,
+		kLegR,
+		kNumPartId
 	};
 };
+
+void MatrixSynthetic(WorldTransform& worldTransform);
