@@ -76,13 +76,22 @@ void GameScene::Initialize() {
 		worldTransform.TransferMatrix();
 	}
 	//カメラ視点座標を設定
-	viewProjection_.eye = { 0.0f,0.0f,-50.0f };
+	//viewProjection_.eye = { 0.0f,0.0f,-50.0f };
 
-	//カメラ注視点座標を設定
-	viewProjection_.target = { 0,0,0 };
+	////カメラ注視点座標を設定
+	//viewProjection_.target = { 0,0,0 };
 
-	//カメラ上方向ベクトルを設定(右上45度指定)
-	viewProjection_.up = { cosf(RADIAN(180.0f) / 4.0f),sinf(RADIAN(180.0f) / 4.0f),0.0f};
+	////カメラ上方向ベクトルを設定(右上45度指定)
+	//viewProjection_.up = { cosf(RADIAN(180.0f) / 4.0f),sinf(RADIAN(180.0f) / 4.0f),0.0f};
+
+	//viewProjection_.fovAngleY = RADIAN(10.0f);
+
+	//アスペクト比の設定
+	viewProjection_.aspectRatio = 1.0f;
+
+	//ニアクリップ、ファークリップの設定
+	viewProjection_.nearZ = 52.0f;
+	viewProjection_.farZ = 53.0f;
 
 	//ビュープロダクションの初期化
 	viewProjection_.Initialize();
@@ -101,62 +110,63 @@ void GameScene::Initialize() {
 
 
 void GameScene::Update() {
-	Vector3 eyeMove = { 0,0,0 };
-	Vector3 targetMove = { 0,0,0 };
-	const float kUpRotSpeed = 0.05f;
-	const float kEyeSpeed = 0.2f;
+	//Vector3 eyeMove = { 0,0,0 };
+	//Vector3 targetMove = { 0,0,0 };
+	//const float kUpRotSpeed = 0.05f;
+	//const float kEyeSpeed = 0.2f;
 
-	//視点移動
+	////視点移動
+	//if (input_->PushKey(DIK_W)) {
+	//	eyeMove.z += kEyeSpeed;
+	//}
+	//else if (input_->PushKey(DIK_S)) {
+	//	eyeMove.z -= kEyeSpeed;
+	//}
+	////注視点移動
+	//if (input_->PushKey(DIK_A)) {
+	//	targetMove.x += kEyeSpeed;
+	//}
+	//else if (input_->PushKey(DIK_D)) {
+	//	targetMove.x -= kEyeSpeed;
+	//}
+	////回転移動
+	//if (input_->PushKey(DIK_SPACE)) {
+	//	viewAngle += kUpRotSpeed;
+
+	//	viewAngle = fmodf(viewAngle, PAI * 2.0f);
+	//}
+	////視点移動
+	//viewProjection_.eye += eyeMove;
+	////注視点移動
+	//viewProjection_.target += targetMove;
+	////回転移動
+	//viewProjection_.up = { cosf(viewAngle),sinf(viewAngle),0.0f };
+
+	if (input_->PushKey(DIK_UP)) {
+		viewProjection_.fovAngleY += 0.01f;
+		viewProjection_.fovAngleY = min(viewProjection_.fovAngleY, PAI);
+	}
+	else if (input_->PushKey(DIK_DOWN)) {
+		viewProjection_.fovAngleY -= 0.01f;
+		viewProjection_.fovAngleY = max(viewProjection_.fovAngleY, 0.01f);
+	}
+
 	if (input_->PushKey(DIK_W)) {
-		eyeMove.z += kEyeSpeed;
+		viewProjection_.nearZ += 0.05f;
 	}
 	else if (input_->PushKey(DIK_S)) {
-		eyeMove.z -= kEyeSpeed;
+		viewProjection_.nearZ -= 0.05f;
 	}
-	//注視点移動
-	if (input_->PushKey(DIK_A)) {
-		targetMove.x += kEyeSpeed;
-	}
-	else if (input_->PushKey(DIK_D)) {
-		targetMove.x -= kEyeSpeed;
-	}
-	//回転移動
-	if (input_->PushKey(DIK_SPACE)) {
-		viewAngle += kUpRotSpeed;
-
-		viewAngle = fmodf(viewAngle, PAI * 2.0f);
-	}
-	//視点移動
-	viewProjection_.eye += eyeMove;
-	//注視点移動
-	viewProjection_.target += targetMove;
-	//回転移動
-	viewProjection_.up = { cosf(viewAngle),sinf(viewAngle),0.0f };
 
 	//行列の再計算
 	viewProjection_.UpdateMatrix();
 
 	//デバッグ表示
 	debugText_->SetPos(50, 30);
-	debugText_->Printf(
-		"eye W/S:(%f,%f,%f)",
-		viewProjection_.eye.x,
-		viewProjection_.eye.y,
-		viewProjection_.eye.z);
+	debugText_->Printf("UP/DOWN siyakaku");
 
 	debugText_->SetPos(50, 50);
-	debugText_->Printf(
-		"target A/D:(%f,%f,%f)",
-		viewProjection_.target.x,
-		viewProjection_.target.y,
-		viewProjection_.target.z);
-
-	debugText_->SetPos(50, 70);
-	debugText_->Printf(
-		"up Space:(%f,%f,%f)",
-		viewProjection_.up.x,
-		viewProjection_.up.y,
-		viewProjection_.up.z);
+	debugText_->Printf("W / S kurippu");
 
 	//デバッグカメラの更新
 	debugCamera_->Update();
