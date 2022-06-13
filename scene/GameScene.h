@@ -68,4 +68,9 @@ private: // メンバ変数
 	ViewProjection viewProjection_;
 
 	float viewAngle = 0.0f;
+
+	enum PartId {
+		Root,
+		Spine,
+	};
 };

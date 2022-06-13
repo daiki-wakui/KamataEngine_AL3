@@ -46,12 +46,13 @@ void GameScene::Initialize() {
 	Matrix4 matRot;
 	Matrix4 matTrans = MathUtility::Matrix4Identity();
 
+	worldTransforms_[0].Initialize();
+
+	worldTransforms_[1].Initialize();
+	worldTransforms_[1].translation_ = { 0,4.5f,0 };
+	worldTransforms_[1].parent_ = &worldTransforms_[0];
+
 	for (WorldTransform& worldTransform : worldTransforms_) {
-		worldTransform.Initialize();
-
-		//x,y,z軸方向のスケーリングを設定
-		worldTransform.scale_ = { 1.0f, 1.0f, 1.0f };
-
 		matScale.ScaleSet(worldTransform.scale_);
 		matRotZ.RotZSet(worldTransform.rotation_.z);
 		matRotX.RotXSet(worldTransform.rotation_.x);
@@ -71,16 +72,7 @@ void GameScene::Initialize() {
 		//行列の転送
 		worldTransform.TransferMatrix();
 	}
-	//カメラ視点座標を設定
-	//viewProjection_.eye = { 0.0f,0.0f,-50.0f };
-
-	////カメラ注視点座標を設定
-	//viewProjection_.target = { 0,0,0 };
-
-	////カメラ上方向ベクトルを設定(右上45度指定)
-	//viewProjection_.up = { cosf(RADIAN(180.0f) / 4.0f),sinf(RADIAN(180.0f) / 4.0f),0.0f};
-
-	//viewProjection_.fovAngleY = RADIAN(10.0f);
+	
 
 	//ビュープロダクションの初期化
 	viewProjection_.Initialize();
@@ -99,17 +91,19 @@ void GameScene::Initialize() {
 
 
 void GameScene::Update() {
-	
+	worldTransforms_[0].Initialize();
+	worldTransforms_[1].Initialize();
+
+	worldTransforms_[1].translation_ = { 0,4.5f,0 };
+	worldTransforms_[1].parent_ = &worldTransforms_[0];
+
 	Vector3 move = { 0,0,0 };
 
 	if (input_->PushKey(DIK_RIGHT)) {
-		move = { 0.05f,0,0 };
+		move = { 0.5f,0,0 };
 	}
 	else if (input_->PushKey(DIK_LEFT)) {
-		move = { -0.05f,0,0 };
-	}
-	else {
-		move = { 0,0,0 };
+		move = { -0.5f,0,0 };
 	}
 
 	worldTransforms_[0].translation_.x += move.x;
@@ -121,8 +115,11 @@ void GameScene::Update() {
 	for (int i = 0; i < 4; i++) {
 		worldTransforms_->matWorld_.m[i][i] = 1.0f;
 	}
-	worldTransforms_->matWorld_ *= matTrans;
+	worldTransforms_[0].matWorld_ *= matTrans;
+	worldTransforms_[1].matWorld_ *= matTrans;
+
 	worldTransforms_[0].TransferMatrix();
+	worldTransforms_[1].TransferMatrix();
 
 	//行列の再計算
 	viewProjection_.UpdateMatrix();
