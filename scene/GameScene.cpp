@@ -47,7 +47,7 @@ void GameScene::Initialize() {
 	//スケール
 	worldTransform_.scale_ = { 5.0f,5.0f,5.0f };
 	//回転
-	worldTransform_.rotation_ = { Radian(45.0f),Radian(45.0f),Radian(45.0f) };
+	worldTransform_.rotation_ = { Radian(45.0f),Radian(45.0f),0.0f };
 	//平行移動
 	worldTransform_.translation_ = { 10,10,10 };
 
