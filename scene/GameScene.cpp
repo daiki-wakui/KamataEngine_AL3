@@ -50,7 +50,11 @@ void GameScene::Initialize() {
 		worldTransform.Initialize();
 
 		//x,y,z軸方向のスケーリングを設定
-		worldTransform.scale_ = {1.0f, 1.0f, 1.0f};
+		worldTransform.scale_ = { 1.0f, 1.0f, 1.0f };
+		// x,y,z軸周りの回転角を設定
+		worldTransform.rotation_ = { rotDist(engine), rotDist(engine), rotDist(engine) };
+		// x,y,z軸周りに平行移動を設定
+		worldTransform.translation_ = { posDist(engine), posDist(engine), posDist(engine) };
 
 		matScale.ScaleSet(worldTransform.scale_);
 		matRotZ.RotZSet(worldTransform.rotation_.z);
@@ -64,7 +68,7 @@ void GameScene::Initialize() {
 		for (int i = 0; i < 4; i++) {
 			worldTransform.matWorld_.m[i][i] = 1.0f;
 		}
-		
+
 		//合成
 		worldTransform.matWorld_ = matScale * matRot * matTrans;
 
@@ -82,6 +86,13 @@ void GameScene::Initialize() {
 
 	//viewProjection_.fovAngleY = RADIAN(10.0f);
 
+	//アスペクト比の設定
+	viewProjection_.aspectRatio = 1.0f;
+
+	//ニアクリップ、ファークリップの設定
+	viewProjection_.nearZ = 52.0f;
+	viewProjection_.farZ = 53.0f;
+
 	//ビュープロダクションの初期化
 	viewProjection_.Initialize();
 
@@ -94,42 +105,68 @@ void GameScene::Initialize() {
 	//ライン描画が参照するビュープロジェクションを指定する
 	PrimitiveDrawer::GetInstance()->SetViewProjection(&debugCamera_->GetViewProjection());
 
-	
+
 }
 
 
 void GameScene::Update() {
-	Matrix4 matTrans = MathUtility::Matrix4Identity();
-	Vector3 move = { 0,0,0 };
+	//Vector3 eyeMove = { 0,0,0 };
+	//Vector3 targetMove = { 0,0,0 };
+	//const float kUpRotSpeed = 0.05f;
+	//const float kEyeSpeed = 0.2f;
 
-	if (input_->PushKey(DIK_RIGHT)) {
-		move = { 0.05f,0,0 };
+	////視点移動
+	//if (input_->PushKey(DIK_W)) {
+	//	eyeMove.z += kEyeSpeed;
+	//}
+	//else if (input_->PushKey(DIK_S)) {
+	//	eyeMove.z -= kEyeSpeed;
+	//}
+	////注視点移動
+	//if (input_->PushKey(DIK_A)) {
+	//	targetMove.x += kEyeSpeed;
+	//}
+	//else if (input_->PushKey(DIK_D)) {
+	//	targetMove.x -= kEyeSpeed;
+	//}
+	////回転移動
+	//if (input_->PushKey(DIK_SPACE)) {
+	//	viewAngle += kUpRotSpeed;
+
+	//	viewAngle = fmodf(viewAngle, PAI * 2.0f);
+	//}
+	////視点移動
+	//viewProjection_.eye += eyeMove;
+	////注視点移動
+	//viewProjection_.target += targetMove;
+	////回転移動
+	//viewProjection_.up = { cosf(viewAngle),sinf(viewAngle),0.0f };
+
+	if (input_->PushKey(DIK_UP)) {
+		viewProjection_.fovAngleY += 0.01f;
+		viewProjection_.fovAngleY = min(viewProjection_.fovAngleY, PAI);
 	}
-	else if (input_->PushKey(DIK_LEFT)) {
-		move = { -0.05f,0,0 };
-	}
-	else {
-		move = { 0,0,0 };
+	else if (input_->PushKey(DIK_DOWN)) {
+		viewProjection_.fovAngleY -= 0.01f;
+		viewProjection_.fovAngleY = max(viewProjection_.fovAngleY, 0.01f);
 	}
 
-	worldTransforms_[0].translation_.x += move.x;
-	matTrans.TransSet(worldTransforms_[0].translation_);
-
-	for (int i = 0; i < 4; i++) {
-		worldTransforms_->matWorld_.m[i][i] = 1.0f;
+	if (input_->PushKey(DIK_W)) {
+		viewProjection_.nearZ += 0.05f;
 	}
-	worldTransforms_->matWorld_ *= matTrans;
-	worldTransforms_[0].TransferMatrix();
+	else if (input_->PushKey(DIK_S)) {
+		viewProjection_.nearZ -= 0.05f;
+	}
 
 	//行列の再計算
 	viewProjection_.UpdateMatrix();
 
 	//デバッグ表示
 	debugText_->SetPos(50, 30);
-	debugText_->Printf("move %f",move.x);
+	debugText_->Printf("UP/DOWN siyakaku");
 
 	debugText_->SetPos(50, 50);
-	debugText_->Printf("pos %f",worldTransforms_[0].translation_.x);
+	debugText_->Printf("W / S kurippu");
 
 	//デバッグカメラの更新
 	debugCamera_->Update();
@@ -166,11 +203,9 @@ void GameScene::Draw() {
 	/// </summary>
 
 	//モデル描画
-	/*for (WorldTransform& worldTransform : worldTransforms_) {
+	for (WorldTransform& worldTransform : worldTransforms_) {
 		model_->Draw(worldTransform, viewProjection_, textureHandle_);
-	}*/
-	model_->Draw(worldTransforms_[0], viewProjection_, textureHandle_);
-	model_->Draw(worldTransforms_[1], viewProjection_, textureHandle_);
+	}
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
