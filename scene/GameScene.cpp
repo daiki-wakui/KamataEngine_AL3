@@ -13,18 +13,10 @@ GameScene::GameScene() {}
 GameScene::~GameScene() {
 	delete model_;
 	delete debugCamera_;
+	delete player_;
 }
 
 void GameScene::Initialize() {
-	//乱数シード生成器
-	std::random_device seed_gen;
-	//メルセンヌ・ツイスターの乱数エンジン
-	std::mt19937_64 engine(seed_gen());
-	//乱数範囲の指定
-	//回転
-	std::uniform_real_distribution<float> rotDist(0.0f, RADIAN(180.0f));
-	//座標
-	std::uniform_real_distribution<float> posDist(-10.0f, 10.0f);
 
 	dxCommon_ = DirectXCommon::GetInstance();
 	input_ = Input::GetInstance();
@@ -40,57 +32,6 @@ void GameScene::Initialize() {
 	//3Dモデル
 	model_ = Model::Create();
 
-	//ワールドトランスフォームの初期化
-	
-	for (i = 0; i < PartId::kNumPartId; i++) {
-		worldTransforms_[i].Initialize();
-	}
-
-	//キャラクターの大元
-
-	//脊髄
-	worldTransforms_[PartId::kSpine].parent_ = &worldTransforms_[kRoot];
-	worldTransforms_[PartId::kSpine].translation_ = { 0,4.5f,0 };
-	
-	//上半身
-	//胸
-	worldTransforms_[PartId::kChest].parent_ = &worldTransforms_[kSpine];
-	worldTransforms_[PartId::kChest].translation_ = { 0,0,0 };
-
-	//頭
-	worldTransforms_[PartId::kHead].parent_ = &worldTransforms_[kChest];
-	worldTransforms_[PartId::kHead].translation_ = { 0,4.5f,0 };
-
-	//左上
-	worldTransforms_[PartId::kArmL].parent_ = &worldTransforms_[kChest];
-	worldTransforms_[PartId::kArmL].translation_ = { -4.5f,0,0 };
-
-	//右上
-	worldTransforms_[PartId::kArmR].parent_ = &worldTransforms_[kChest];
-	worldTransforms_[PartId::kArmR].translation_ = { 4.5f,0,0 };
-
-	//下半身
-	//腰
-	worldTransforms_[PartId::kHip].parent_ = &worldTransforms_[kSpine];
-	worldTransforms_[PartId::kHip].translation_ = { 0,-4.5f,0 };
-
-	//左足
-	worldTransforms_[PartId::kLegL].parent_ = &worldTransforms_[kHip];
-	worldTransforms_[PartId::kLegL].translation_ = { -4.5f,-4.5f,0 };
-
-	//右足
-	worldTransforms_[PartId::kLegR].parent_ = &worldTransforms_[kHip];
-	worldTransforms_[PartId::kLegR].translation_ = { 4.5f,-4.5f,0 };
-
-	for (i = 0; i < PartId::kNumPartId; i++) {
-		MatrixSynthetic(worldTransforms_[i]);
-	}
-
-	//行列の転送
-	for (i = 0; i < PartId::kNumPartId; i++) {
-		worldTransforms_[i].TransferMatrix();
-	}
-
 	//ビュープロダクションの初期化
 	viewProjection_.Initialize();
 
@@ -103,69 +44,16 @@ void GameScene::Initialize() {
 	//ライン描画が参照するビュープロジェクションを指定する
 	PrimitiveDrawer::GetInstance()->SetViewProjection(&debugCamera_->GetViewProjection());
 
-
+	player_ = new Player();
+	player_->Initialize(model_,textureHandle_);
 }
 
 
 void GameScene::Update() {
-
-	Vector3 move = { 0,0,0 };
-
-	if (input_->PushKey(DIK_RIGHT)) {
-		move = { 0.5f,0,0 };
-	}
-	else if (input_->PushKey(DIK_LEFT)) {
-		move = { -0.5f,0,0 };
-	}
-
-	//上半身回転
-	if (input_->PushKey(DIK_U)) {
-		worldTransforms_[PartId::kChest].rotation_.y -= 0.05f;
-	}
-	else if (input_->PushKey(DIK_I)) {
-		worldTransforms_[PartId::kChest].rotation_.y += 0.05f;
-	}
-
-	//下半身回転
-	if (input_->PushKey(DIK_J)) {
-		worldTransforms_[PartId::kHip].rotation_.y -= 0.05f;
-	}
-	else if (input_->PushKey(DIK_K)) {
-		worldTransforms_[PartId::kHip].rotation_.y += 0.05f;
-	}
-
-	worldTransforms_[PartId::kRoot].translation_.x += move.x;
-	
-	//全パーツの更新
-	for (i = 0; i < PartId::kNumPartId; i++) {
-		MatrixSynthetic(worldTransforms_[i]);
-	}
-
-	worldTransforms_[PartId::kSpine].matWorld_ *= worldTransforms_[PartId::kRoot].matWorld_;
-	worldTransforms_[PartId::kChest].matWorld_ *= worldTransforms_[PartId::kSpine].matWorld_;
-	worldTransforms_[PartId::kHead].matWorld_ *= worldTransforms_[PartId::kChest].matWorld_;
-	worldTransforms_[PartId::kArmL].matWorld_ *= worldTransforms_[PartId::kChest].matWorld_;
-	worldTransforms_[PartId::kArmR].matWorld_ *= worldTransforms_[PartId::kChest].matWorld_;
-	worldTransforms_[PartId::kHip].matWorld_ *= worldTransforms_[PartId::kSpine].matWorld_;
-	worldTransforms_[PartId::kLegL].matWorld_ *= worldTransforms_[PartId::kHip].matWorld_;
-	worldTransforms_[PartId::kLegR].matWorld_ *= worldTransforms_[PartId::kHip].matWorld_;
-
-	for (i = 0; i < PartId::kNumPartId; i++) {
-		worldTransforms_[i].TransferMatrix();
-	}
+	player_->Update();
 
 	//行列の再計算
 	viewProjection_.UpdateMatrix();
-
-	//デバッグ表示
-	debugText_->SetPos(50, 10);
-	debugText_->Printf("pos %f", worldTransforms_[0].translation_.x);
-
-	debugText_->SetPos(50, 30);
-	debugText_->Printf("U/I key : Chest kaitenn");
-
-	debugText_->SetPos(50, 50);
-	debugText_->Printf("J/K key : Hip kaitenn");
 
 	//デバッグカメラの更新
 	debugCamera_->Update();
@@ -202,20 +90,7 @@ void GameScene::Draw() {
 	/// </summary>
 
 	//モデル描画
-	/*for (WorldTransform& worldTransform : worldTransforms_) {
-		model_->Draw(worldTransform, viewProjection_, textureHandle_);
-	}*/
-	/*model_->Draw(worldTransforms_[0], viewProjection_, textureHandle_);
-	model_->Draw(worldTransforms_[1], viewProjection_, textureHandle_);
-	model_->Draw(worldTransforms_[2], viewProjection_, textureHandle_);*/
-	
-
-	for (i = 0; i < PartId::kNumPartId; i++) {
-		if (i == PartId::kRoot || i == PartId::kSpine) {
-			continue;
-		}
-		model_->Draw(worldTransforms_[i], viewProjection_, textureHandle_);
-	}
+	player_->Draw(viewProjection_);
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();

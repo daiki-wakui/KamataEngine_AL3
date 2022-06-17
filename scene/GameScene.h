@@ -4,12 +4,11 @@
 #include "DirectXCommon.h"
 #include "DebugText.h"
 #include "Input.h"
-#include "Model.h"
 #include "SafeDelete.h"
 #include "Sprite.h"
 #include "ViewProjection.h"
-#include "WorldTransform.h"
 #include "DebugCamera.h"
+#include "Player.h"
 
 /// <summary>
 /// ゲームシーン
@@ -62,25 +61,12 @@ private: // メンバ変数
 	Model* model_ = nullptr;
 
 	//ワールドトランスフォーム
-	WorldTransform worldTransforms_[9];
-
+	
 	//ビュープロジェクション
 	ViewProjection viewProjection_;
 
-	float viewAngle = 0.0f;
-	int i;
-	enum PartId {
-		kRoot,
-		kSpine,
-		kChest,
-		kHead,
-		kArmL,
-		kArmR,
-		kHip,
-		kLegL,
-		kLegR,
-		kNumPartId
-	};
+	//自キャラ
+	Player* player_ = nullptr;
 };
 
 void MatrixSynthetic(WorldTransform& worldTransform);
