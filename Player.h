@@ -4,6 +4,8 @@
 #include "Input.h"
 #include "DebugText.h"
 #include "PlayerBullet.h"
+#include <memory>
+#include <list>
 
 class Player{
 private:
@@ -15,7 +17,8 @@ private:
 	DebugText* debugText_ = nullptr;
 	//キャラクターの移動ベクトル
 	Vector3 move;
-	PlayerBullet* bullet_ = nullptr;
+	//PlayerBullet* bullet_ = nullptr;
+	std::list<std::unique_ptr<PlayerBullet>> bullets_;
 public:
 
 	void Initialize(Model* model, uint32_t textureHandle);
