@@ -24,7 +24,7 @@ void GameScene::Initialize() {
 	debugText_ = DebugText::GetInstance();
 
 	//ファイル名を指定してテクスチャを読み込む
-	textureHandle_ = TextureManager::Load("mario.jpg");
+	textureHandle_ = TextureManager::Load("player.png");
 
 	//デバッグカメラの生成
 	debugCamera_ = new DebugCamera(1280, 720);

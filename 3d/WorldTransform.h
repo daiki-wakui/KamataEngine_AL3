@@ -4,6 +4,7 @@
 #include "Matrix4.h"
 #include <d3d12.h>
 #include <wrl.h>
+#include "MathUtility.h"
 
 // 定数バッファ用データ構造体
 struct ConstBufferDataWorldTransform {
@@ -45,4 +46,6 @@ struct WorldTransform {
 	/// 行列を転送する
 	/// </summary>
 	void TransferMatrix();
+
+	void MatrixConvert();
 };

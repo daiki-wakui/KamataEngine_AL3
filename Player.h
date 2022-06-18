@@ -3,6 +3,7 @@
 #include "Model.h"
 #include "Input.h"
 #include "DebugText.h"
+#include "PlayerBullet.h"
 
 class Player{
 private:
@@ -12,11 +13,16 @@ private:
 
 	Input* input_ = nullptr;
 	DebugText* debugText_ = nullptr;
+	//キャラクターの移動ベクトル
+	Vector3 move;
+	PlayerBullet* bullet_ = nullptr;
 public:
 
 	void Initialize(Model* model, uint32_t textureHandle);
 	void Update();
 	void Draw(ViewProjection &viewProjection);
+	void MatrixConvert();
+	void Move();
+	void Rotate();
+	void Attack();
 };
-
-void MatrixConvert(WorldTransform& worldTransform_);
