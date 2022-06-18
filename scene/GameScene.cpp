@@ -46,43 +46,32 @@ void GameScene::Initialize() {
 	Matrix4 matRot;
 	Matrix4 matTrans = MathUtility::Matrix4Identity();
 
-	for (WorldTransform& worldTransform : worldTransforms_) {
-		worldTransform.Initialize();
+	for (int i = 0; i < 9; i++) {
+		worldTransforms_Under_[i].Initialize();
+		worldTransforms_Top_[i].Initialize();
 
 		//x,y,z軸方向のスケーリングを設定
-		worldTransform.scale_ = {1.0f, 1.0f, 1.0f};
-		// x,y,z軸周りの回転角を設定
-		worldTransform.rotation_ = { rotDist(engine), rotDist(engine), rotDist(engine) };
+		worldTransforms_Under_[i].scale_ = { 5.0f, 5.0f, 5.0f };
+		worldTransforms_Top_[i].scale_ = { 5.0f, 5.0f, 5.0f };
+
 		// x,y,z軸周りに平行移動を設定
-		worldTransform.translation_ = { posDist(engine), posDist(engine), posDist(engine) };
+		worldTransforms_Under_[i].translation_ = { 40.0f - (10.0f * i), -20.0f , 0 };
+		worldTransforms_Top_[i].translation_ = { 40.0f - (10.0f * i), 20.0f , 0 };
 
-		matScale.ScaleSet(worldTransform.scale_);
-		matRotZ.RotZSet(worldTransform.rotation_.z);
-		matRotX.RotXSet(worldTransform.rotation_.x);
-		matRotY.RotYSet(worldTransform.rotation_.y);
-		matTrans.TransSet(worldTransform.translation_);
-
-		matRot = matRotZ * matRotX * matRotY;
-
-		//単位行列の設定
-		for (int i = 0; i < 4; i++) {
-			worldTransform.matWorld_.m[i][i] = 1.0f;
-		}
-		
 		//合成
-		worldTransform.matWorld_ = matScale * matRot * matTrans;
+		worldTransforms_Under_[i].MatrixConvert();
+		worldTransforms_Top_[i].MatrixConvert();
 
 		//行列の転送
-		worldTransform.TransferMatrix();
+		worldTransforms_Under_[i].TransferMatrix();
+		worldTransforms_Top_[i].TransferMatrix();
 	}
+
 	//カメラ視点座標を設定
-	viewProjection_.eye = { 0.0f,0.0f,-50.0f };
+	viewProjection_.eye = { 0.0f,10.0f,-50.0f };
 
 	//カメラ注視点座標を設定
 	viewProjection_.target = { 0,0,0 };
-
-	//カメラ上方向ベクトルを設定(右上45度指定)
-	viewProjection_.up = { cosf(RADIAN(180.0f) / 4.0f),sinf(RADIAN(180.0f) / 4.0f),0.0f};
 
 	//ビュープロダクションの初期化
 	viewProjection_.Initialize();
@@ -101,62 +90,19 @@ void GameScene::Initialize() {
 
 
 void GameScene::Update() {
-	Vector3 eyeMove = { 0,0,0 };
-	Vector3 targetMove = { 0,0,0 };
-	const float kUpRotSpeed = 0.05f;
-	const float kEyeSpeed = 0.2f;
-
-	//視点移動
-	if (input_->PushKey(DIK_W)) {
-		eyeMove.z += kEyeSpeed;
-	}
-	else if (input_->PushKey(DIK_S)) {
-		eyeMove.z -= kEyeSpeed;
-	}
-	//注視点移動
-	if (input_->PushKey(DIK_A)) {
-		targetMove.x += kEyeSpeed;
-	}
-	else if (input_->PushKey(DIK_D)) {
-		targetMove.x -= kEyeSpeed;
-	}
-	//回転移動
-	if (input_->PushKey(DIK_SPACE)) {
-		viewAngle += kUpRotSpeed;
-
-		viewAngle = fmodf(viewAngle, PAI * 2.0f);
-	}
-	//視点移動
-	viewProjection_.eye += eyeMove;
-	//注視点移動
-	viewProjection_.target += targetMove;
-	//回転移動
-	viewProjection_.up = { cosf(viewAngle),sinf(viewAngle),0.0f };
 
 	//行列の再計算
 	viewProjection_.UpdateMatrix();
 
 	//デバッグ表示
-	debugText_->SetPos(50, 30);
+	/*debugText_->SetPos(50, 30);
 	debugText_->Printf(
 		"eye W/S:(%f,%f,%f)",
 		viewProjection_.eye.x,
 		viewProjection_.eye.y,
-		viewProjection_.eye.z);
+		viewProjection_.eye.z);*/
 
-	debugText_->SetPos(50, 50);
-	debugText_->Printf(
-		"target A/D:(%f,%f,%f)",
-		viewProjection_.target.x,
-		viewProjection_.target.y,
-		viewProjection_.target.z);
-
-	debugText_->SetPos(50, 70);
-	debugText_->Printf(
-		"up Space:(%f,%f,%f)",
-		viewProjection_.up.x,
-		viewProjection_.up.y,
-		viewProjection_.up.z);
+	
 
 	//デバッグカメラの更新
 	debugCamera_->Update();
@@ -193,8 +139,13 @@ void GameScene::Draw() {
 	/// </summary>
 
 	//モデル描画
-	for (WorldTransform& worldTransform : worldTransforms_) {
+	/*for (WorldTransform& worldTransform : worldTransforms_) {
 		model_->Draw(worldTransform, viewProjection_, textureHandle_);
+	}*/
+
+	for (int i = 0; i < 9; i++) {
+		model_->Draw(worldTransforms_Under_[i], viewProjection_, textureHandle_);
+		model_->Draw(worldTransforms_Top_[i], viewProjection_, textureHandle_);
 	}
 
 	// 3Dオブジェクト描画後処理
