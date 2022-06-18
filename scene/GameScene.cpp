@@ -47,28 +47,26 @@ void GameScene::Initialize() {
 	Matrix4 matTrans = MathUtility::Matrix4Identity();
 
 	for (int i = 0; i < 9; i++) {
-		worldTransforms_Under_[i].Initialize();
-		worldTransforms_Top_[i].Initialize();
+		for (int j = 0; j < 9; j++) {
+			worldTransforms_[i][j].Initialize();
 
-		//x,y,z軸方向のスケーリングを設定
-		worldTransforms_Under_[i].scale_ = { 5.0f, 5.0f, 5.0f };
-		worldTransforms_Top_[i].scale_ = { 5.0f, 5.0f, 5.0f };
+			//x,y,z軸方向のスケーリングを設定
+			worldTransforms_[i][j].scale_ = {1.0f, 1.0f, 1.0f};
 
-		// x,y,z軸周りに平行移動を設定
-		worldTransforms_Under_[i].translation_ = { 40.0f - (10.0f * i), -20.0f , 0 };
-		worldTransforms_Top_[i].translation_ = { 40.0f - (10.0f * i), 20.0f , 0 };
+			// x,y,z軸周りに平行移動を設定
+			worldTransforms_[i][j].translation_ = {20.0f - (5.0f * i), 20.0f - (5.0f*j), 0};
 
-		//合成
-		worldTransforms_Under_[i].MatrixConvert();
-		worldTransforms_Top_[i].MatrixConvert();
+			//合成
+			worldTransforms_[i][j].MatrixConvert();
 
-		//行列の転送
-		worldTransforms_Under_[i].TransferMatrix();
-		worldTransforms_Top_[i].TransferMatrix();
+			//行列の転送
+			worldTransforms_[i][j].TransferMatrix();
+		}
 	}
 
+
 	//カメラ視点座標を設定
-	viewProjection_.eye = { 0.0f,10.0f,-50.0f };
+	viewProjection_.eye = { 0.0f,0.0f,-60.0f };
 
 	//カメラ注視点座標を設定
 	viewProjection_.target = { 0,0,0 };
@@ -139,10 +137,15 @@ void GameScene::Draw() {
 	/// </summary>
 
 	//モデル描画
-
 	for (int i = 0; i < 9; i++) {
-		model_->Draw(worldTransforms_Under_[i], viewProjection_, textureHandle_);
-		model_->Draw(worldTransforms_Top_[i], viewProjection_, textureHandle_);
+		for (int j = 0; j < 9; j++) {
+			//縦列と横列が奇数だったら描画しない
+			if (i % 2 == 1 && j % 2 == 1) {
+				continue;
+			}
+
+			model_->Draw(worldTransforms_[i][j], viewProjection_, textureHandle_);
+		}
 	}
 
 	// 3Dオブジェクト描画後処理
