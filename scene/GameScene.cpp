@@ -139,7 +139,6 @@ void GameScene::Draw() {
 	/// </summary>
 
 	//モデル描画
-
 	for (int i = 0; i < 9; i++) {
 		model_->Draw(worldTransforms_Under_[i], viewProjection_, textureHandle_);
 		model_->Draw(worldTransforms_Top_[i], viewProjection_, textureHandle_);
