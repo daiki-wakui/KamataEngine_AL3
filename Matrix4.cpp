@@ -1,4 +1,5 @@
 #include "Matrix4.h"
+#include "Vector3.h"
 #include "GameScene.h"
 
 Matrix4 Matrix4::operator*(const Matrix4& m2)
@@ -14,16 +15,6 @@ Matrix4 Matrix4::operator*(const Matrix4& m2)
 
 	return answer;
 }
-
-//Matrix4 Matrix4::ScaleSet(float& x, float& y, float& z)
-//{
-//	m[0][0] = x;
-//	m[1][1] = y;
-//	m[2][2] = z;
-//	m[3][3] = 1.0f;
-//
-//	return matScale;
-//}
 
 void Matrix4::ScaleSet(Vector3& v){
 	m[0][0] = v.x;

@@ -1,9 +1,12 @@
 ﻿#pragma once
-#include "Vector3.h"
+
 
 /// <summary>
 /// 行列
 /// </summary>
+
+class Vector3;
+
 class Matrix4 {
   public:
 	// 行x列
@@ -23,7 +26,6 @@ class Matrix4 {
 
 	Matrix4 operator*(const Matrix4& m2);
 
-	//Matrix4 ScaleSet(float& x, float& y, float& z);
 	void ScaleSet(Vector3& v);
 	void RotXSet(float &x);
 	void RotYSet(float& y);

@@ -3,6 +3,9 @@
 /// <summary>
 /// 3次元ベクトル
 /// </summary>
+
+class Matrix4;
+
 class Vector3 {
   public:
 	float x; // x成分
@@ -24,4 +27,7 @@ class Vector3 {
 	Vector3& operator-=(const Vector3& v);
 	Vector3& operator*=(float s);
 	Vector3& operator/=(float s);
+
+	//4行列との掛け算
+	void multiplyMat4(Matrix4& mat);
 };

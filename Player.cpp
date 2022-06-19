@@ -17,6 +17,12 @@ void Player::Initialize(Model* model, uint32_t textureHandle){
 }
 
 void Player::Update(){
+
+	//ƒfƒXƒtƒ‰ƒO‚ª—§‚Á‚½’e‚ğíœ
+	bullets_.remove_if([](std::unique_ptr<PlayerBullet>& bullet) {
+		return bullet->IsDead();
+	});
+
 	//ˆÚ“®ŒÀŠEÀ•W
 	const float kMoveLimitX = 35.0f;
 	const float kMoveLimitY = 18.5f;
@@ -25,9 +31,10 @@ void Player::Update(){
 	Move();
 	//‰ñ“]ŠÖ”
 	Rotate();
-	
-	Attack();
 
+	//’e‚ğo‚·
+	Attack();
+	//’e‚ÌXVˆ—
 	for (std::unique_ptr<PlayerBullet>& bullet : bullets_) {
 		bullet->Update();
 	}
@@ -61,6 +68,7 @@ void Player::Update(){
 	debugText_->Printf("SPACE Key PlayerBullet");
 }
 
+//•`‰æŠÖ”
 void Player::Draw(ViewProjection &viewProjection){
 	//3Dƒ‚ƒfƒ‹•`‰æ
 	model_->Draw(worldTransform_, viewProjection, textureHandle_);
@@ -70,6 +78,7 @@ void Player::Draw(ViewProjection &viewProjection){
 	}
 }
 
+//s—ñ•ÏŠ·ŠÖ”
 void Player::MatrixConvert(){
 	Matrix4 matScale;
 	Matrix4 matRotX, matRotY, matRotZ;
@@ -86,6 +95,7 @@ void Player::MatrixConvert(){
 	worldTransform_.matWorld_ = matScale * matRot * matTrans;
 }
 
+//ˆÚ“®ŠÖ”
 void Player::Move(){
 	//ƒLƒƒƒ‰ƒNƒ^[‚ÌˆÚ“®ƒxƒNƒgƒ‹
 	move = { 0,0,0 };
@@ -106,6 +116,7 @@ void Player::Move(){
 	worldTransform_.translation_ += move;
 }
 
+//‰ñ“]ŠÖ”
 void Player::Rotate(){
 	if (input_->PushKey(DIK_U)) {
 		worldTransform_.rotation_.y -= 0.05f;
@@ -115,13 +126,21 @@ void Player::Rotate(){
 	}
 }
 
+//’e‚ÌUŒ‚
 void Player::Attack()
 {
 	if (input_->TriggerKey(DIK_SPACE)) {
-		//PlayerBullet* newBullet = new PlayerBullet();
-		std::unique_ptr<PlayerBullet> newBullet = std::make_unique<PlayerBullet>();
-		newBullet->Initialize(model_, worldTransform_.translation_);
+		//’e‚Ì‘¬“x
+		const float kBulletSpeed = 1.0f;
+		Vector3 velocity(0, 0, kBulletSpeed);
 
+		velocity.multiplyMat4(worldTransform_.matWorld_);
+
+		//’e‚Ì¶¬‚Æ‰Šú‰»
+		std::unique_ptr<PlayerBullet> newBullet = std::make_unique<PlayerBullet>();
+		newBullet->Initialize(model_, worldTransform_.translation_,velocity);
+
+		//’e‚ğ“o˜^‚·‚é
 		bullets_.push_back(std::move(newBullet));
 	}
 }
