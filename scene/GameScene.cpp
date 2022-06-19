@@ -13,7 +13,6 @@ GameScene::GameScene() {}
 GameScene::~GameScene() {
 	delete model_;
 	delete debugCamera_;
-	delete player_;
 }
 
 void GameScene::Initialize() {
@@ -44,13 +43,23 @@ void GameScene::Initialize() {
 	//ライン描画が参照するビュープロジェクションを指定する
 	PrimitiveDrawer::GetInstance()->SetViewProjection(&debugCamera_->GetViewProjection());
 
-	player_ = new Player();
-	player_->Initialize(model_,textureHandle_);
+	//playerと敵の生成
+	Player* newPlayer = new Player();
+	newPlayer->Initialize(model_, textureHandle_);
+	player_.reset(newPlayer);
+
+	Enemy* newEnemy = new Enemy();
+	newEnemy->Initialize(model_, worldTransform_.translation_, textureHandle_);
+	enemy_.reset(newEnemy);
 }
 
 
 void GameScene::Update() {
 	player_->Update();
+
+	if (enemy_) {
+		enemy_->Update();
+	}
 
 	//行列の再計算
 	viewProjection_.UpdateMatrix();
@@ -91,6 +100,10 @@ void GameScene::Draw() {
 
 	//モデル描画
 	player_->Draw(viewProjection_);
+
+	if (enemy_) {
+		enemy_->Draw(viewProjection_);
+	}
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();

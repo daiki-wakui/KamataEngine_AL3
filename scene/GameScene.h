@@ -9,6 +9,8 @@
 #include "ViewProjection.h"
 #include "DebugCamera.h"
 #include "Player.h"
+#include "Enemy.h"
+#include <memory>
 
 /// <summary>
 /// ゲームシーン
@@ -61,12 +63,15 @@ private: // メンバ変数
 	Model* model_ = nullptr;
 
 	//ワールドトランスフォーム
-	
+	WorldTransform worldTransform_;
 	//ビュープロジェクション
 	ViewProjection viewProjection_;
 
 	//自キャラ
-	Player* player_ = nullptr;
+	//Player* player_ = nullptr;
+	std::unique_ptr<Player> player_;
+	std::unique_ptr<Enemy> enemy_;
+
 };
 
 void MatrixSynthetic(WorldTransform& worldTransform);
