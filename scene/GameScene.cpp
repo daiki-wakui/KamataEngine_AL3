@@ -48,19 +48,21 @@ void GameScene::Initialize() {
 
 	for (int i = 0; i < 9; i++) {
 		for (int j = 0; j < 9; j++) {
-			worldTransforms_[i][j].Initialize();
+			for (int k = 0; k < 9; k++) {
+				worldTransforms_[i][j][k].Initialize();
 
-			//x,y,z軸方向のスケーリングを設定
-			worldTransforms_[i][j].scale_ = {1.0f, 1.0f, 1.0f};
+				//x,y,z軸方向のスケーリングを設定
+				worldTransforms_[i][j][k].scale_ = {1.0f, 1.0f, 1.0f};
 
-			// x,y,z軸周りに平行移動を設定
-			worldTransforms_[i][j].translation_ = {20.0f - (5.0f * i), 20.0f - (5.0f*j), 0};
+				// x,y,z軸周りに平行移動を設定
+				worldTransforms_[i][j][k].translation_ = {12.0f - (3.0f * i), 12.0f - (3.0f * j), 12.0f - (3.0f * k) };
 
-			//合成
-			worldTransforms_[i][j].MatrixConvert();
+				//合成
+				worldTransforms_[i][j][k].MatrixConvert();
 
-			//行列の転送
-			worldTransforms_[i][j].TransferMatrix();
+				//行列の転送
+				worldTransforms_[i][j][k].TransferMatrix();
+			}
 		}
 	}
 
@@ -78,7 +80,7 @@ void GameScene::Initialize() {
 	AxisIndicator::GetInstance()->SetVisible(true);
 
 	//軸方向表示が参照するビュープロジェクションを指定する
-	AxisIndicator::GetInstance()->SetTargetViewProjection(&viewProjection_);
+	AxisIndicator::GetInstance()->SetTargetViewProjection(&debugCamera_->GetViewProjection());
 
 	//ライン描画が参照するビュープロジェクションを指定する
 	PrimitiveDrawer::GetInstance()->SetViewProjection(&debugCamera_->GetViewProjection());
@@ -93,14 +95,8 @@ void GameScene::Update() {
 	viewProjection_.UpdateMatrix();
 
 	//デバッグ表示
-	/*debugText_->SetPos(50, 30);
-	debugText_->Printf(
-		"eye W/S:(%f,%f,%f)",
-		viewProjection_.eye.x,
-		viewProjection_.eye.y,
-		viewProjection_.eye.z);*/
-
-	
+	debugText_->SetPos(50, 30);
+	debugText_->Printf("mouse debugCamera");
 
 	//デバッグカメラの更新
 	debugCamera_->Update();
@@ -139,12 +135,9 @@ void GameScene::Draw() {
 	//モデル描画
 	for (int i = 0; i < 9; i++) {
 		for (int j = 0; j < 9; j++) {
-			//縦列と横列が奇数だったら描画しない
-			if (i % 2 == 1 && j % 2 == 1) {
-				continue;
+			for (int k = 0; k < 9; k++) {
+				model_->Draw(worldTransforms_[i][j][k], debugCamera_->GetViewProjection(), textureHandle_);
 			}
-
-			model_->Draw(worldTransforms_[i][j], viewProjection_, textureHandle_);
 		}
 	}
 
