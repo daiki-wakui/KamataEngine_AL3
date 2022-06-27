@@ -72,6 +72,7 @@ private: // メンバ変数
 	std::unique_ptr<Player> player_;
 	std::unique_ptr<Enemy> enemy_;
 
+	bool isDebugCameraActive_ = false;
 };
 
 void MatrixSynthetic(WorldTransform& worldTransform);
