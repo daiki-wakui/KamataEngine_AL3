@@ -18,9 +18,29 @@ void Enemy::Initialize(Model* model, const Vector3& position, uint32_t textureHa
 
 //çXêVèàóù
 void Enemy::Update(){
-	Vector3 move = { 0.0f,0.0f,-0.25f };
 
-	worldTransform_.translation_ += move;
+
+	Vector3 move = { 0.0f,0.0f,0.0f };
+
+	switch (phase_) {
+	case Phase::Approach:
+		move = { 0.0f,0.0f,-0.25f };
+		worldTransform_.translation_ += move;
+
+		if (worldTransform_.translation_.z < 0.0f) {
+			phase_ = Phase::Leave;
+		}
+
+		break;
+	case Phase::Leave:
+		move = { -0.25f,0.25f,-0.25f };
+		worldTransform_.translation_ += move;
+
+
+		break;
+	default:
+		break;
+	}
 
 	worldTransform_.MatrixConvert();
 	worldTransform_.TransferMatrix();
