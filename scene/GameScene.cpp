@@ -46,17 +46,49 @@ void GameScene::Initialize() {
 
 	player_ = new Player();
 	player_->Initialize(model_,textureHandle_);
+
+	//viewProjection_.eye = { -10,0,0 };
 }
 
 
 void GameScene::Update() {
+#ifdef _DEBUG
+	if (input_->TriggerKey(DIK_0)) {
+		isDebugCameraActive_ = true;
+	}
+
+	if (input_->TriggerKey(DIK_9)) {
+		isDebugCameraActive_ = false;
+	}
+#endif // _DEBUG
+
+	if (input_->PushKey(DIK_4)) {
+		viewProjection_.eye.y += 0.5f;
+	}
+	else if(input_->PushKey(DIK_5)) {
+		viewProjection_.eye.y -= 0.5f;
+	}
+
+
 	player_->Update();
 
-	//行列の再計算
-	viewProjection_.UpdateMatrix();
-
 	//デバッグカメラの更新
-	debugCamera_->Update();
+	//debugCamera_->Update();
+
+	if (isDebugCameraActive_) {
+		debugCamera_->Update();
+		viewProjection_.matView = debugCamera_->GetViewProjection().matView;
+		viewProjection_.matProjection = debugCamera_->GetViewProjection().matProjection;
+		viewProjection_.TransferMatrix();
+	}
+	else {
+		//行列の再計算
+		viewProjection_.UpdateMatrix();
+		viewProjection_.TransferMatrix();
+	}
+
+	debugText_->SetPos(20, 40);
+	debugText_->Printf("debugCamera %d", isDebugCameraActive_);
 }
 
 void GameScene::Draw() {

@@ -67,6 +67,8 @@ private: // メンバ変数
 
 	//自キャラ
 	Player* player_ = nullptr;
+
+	bool isDebugCameraActive_ = false;
 };
 
 void MatrixSynthetic(WorldTransform& worldTransform);

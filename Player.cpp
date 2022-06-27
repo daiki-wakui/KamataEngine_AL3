@@ -23,6 +23,8 @@ void Player::Update(){
 
 	//キャラクターの移動ベクトル
 	Vector3 move = { 0,0,0 };
+	Vector3 rote = { 0,0,0 };
+	Vector3 scale = { 0,0,0 };
 
 	if (input_->PushKey(DIK_RIGHT)) {
 		move = { 0.5f,0,0 };
@@ -36,8 +38,56 @@ void Player::Update(){
 	else if (input_->PushKey(DIK_DOWN)) {
 		move = { 0,-0.5f,0 };
 	}
+	else if (input_->PushKey(DIK_Z)) {
+		move = { 0,0,0.5f };
+	}
+	else if (input_->PushKey(DIK_X)) {
+		move = { 0,0,-0.5f };
+	}
+
+	if (input_->PushKey(DIK_W)) {
+		rote = { 0.3f,0,0 };
+	}
+	else if (input_->PushKey(DIK_S)) {
+		rote = { -0.3f,0,0 };
+	}
+	else if (input_->PushKey(DIK_D)) {
+		rote = { 0,0.3f,0 };
+	}
+	else if (input_->PushKey(DIK_A)) {
+		rote = { 0,-0.3f,0 };
+	}
+	else if (input_->PushKey(DIK_E)) {
+		rote = { 0,0,0.3f };
+	}
+	else if (input_->PushKey(DIK_Q)) {
+		rote = { 0,0,-0.3f };
+	}
+
+	if (input_->PushKey(DIK_U)) {
+		scale = { 0.05f,0,0 };
+	}
+	else if (input_->PushKey(DIK_J)) {
+		scale = { -0.05f,0,0 };
+	}
+	else if (input_->PushKey(DIK_I)) {
+		scale = { 0,0.05f,0 };
+	}
+	else if (input_->PushKey(DIK_K)) {
+		scale = { 0,-0.05f,0 };
+	}
+	else if (input_->PushKey(DIK_O)) {
+		scale = { 0,0,0.05f };
+	}
+	else if (input_->PushKey(DIK_L)) {
+		scale = { 0,0,-0.05f };
+	}
+
 
 	worldTransform_.translation_ += move;
+	worldTransform_.rotation_ += rote;
+	worldTransform_.scale_ += scale;
+
 
 	worldTransform_.translation_.x = max(worldTransform_.translation_.x, -kMoveLimitX);
 	worldTransform_.translation_.x = min(worldTransform_.translation_.x, +kMoveLimitX);
