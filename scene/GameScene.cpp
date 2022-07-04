@@ -3,8 +3,10 @@
 #include <cassert>
 #include "AxisIndicator.h"
 #include "PrimitiveDrawer.h"
+#include <random>
 
-#define Radian(angle)angle*3.1415f/180
+#define RADIAN(angle)angle*3.1415f/180
+#define PAI 3.1415f
 
 GameScene::GameScene() {}
 
@@ -14,6 +16,15 @@ GameScene::~GameScene() {
 }
 
 void GameScene::Initialize() {
+	//乱数シード生成器
+	std::random_device seed_gen;
+	//メルセンヌ・ツイスターの乱数エンジン
+	std::mt19937_64 engine(seed_gen());
+	//乱数範囲の指定
+	//回転
+	std::uniform_real_distribution<float> rotDist(0.0f, RADIAN(180.0f));
+	//座標
+	std::uniform_real_distribution<float> posDist(-10.0f, 10.0f);
 
 	dxCommon_ = DirectXCommon::GetInstance();
 	input_ = Input::GetInstance();
@@ -30,7 +41,17 @@ void GameScene::Initialize() {
 	model_ = Model::Create();
 
 	//ワールドトランスフォームの初期化
-	worldTransform_.Initialize();
+	worldTransform_[0].Initialize();
+	worldTransform_[1].Initialize();
+
+	worldTransform_[0].translation_ = {10,10,10};
+
+	MatrixSynthetic(worldTransform_[0]);
+	MatrixSynthetic(worldTransform_[1]);
+
+	//行列の転送
+	worldTransform_[0].TransferMatrix();
+	worldTransform_[1].TransferMatrix();
 
 	//ビュープロダクションの初期化
 	viewProjection_.Initialize();
@@ -39,44 +60,37 @@ void GameScene::Initialize() {
 	AxisIndicator::GetInstance()->SetVisible(true);
 
 	//軸方向表示が参照するビュープロジェクションを指定する
-	AxisIndicator::GetInstance()->SetTargetViewProjection(&debugCamera_->GetViewProjection());
+	AxisIndicator::GetInstance()->SetTargetViewProjection(&viewProjection_);
 
 	//ライン描画が参照するビュープロジェクションを指定する
 	PrimitiveDrawer::GetInstance()->SetViewProjection(&debugCamera_->GetViewProjection());
-
-	//スケール
-	worldTransform_.scale_ = { 5.0f,5.0f,5.0f };
-	//回転
-	worldTransform_.rotation_ = { Radian(45.0f),Radian(45.0f),0.0f };
-	//平行移動
-	worldTransform_.translation_ = { 10,10,10 };
-
-	Matrix4 matScale;
-	Matrix4 matRotX, matRotY, matRotZ;
-	Matrix4 matRot;
-	Matrix4 matTrans = MathUtility::Matrix4Identity();
-
-	matScale.ScaleSet(worldTransform_.scale_);
-	matRotZ.RotZSet(worldTransform_.rotation_.z);
-	matRotX.RotXSet(worldTransform_.rotation_.x);
-	matRotY.RotYSet(worldTransform_.rotation_.y);
-	matTrans.TransSet(worldTransform_.translation_);
-
-	matRot = matRotZ * matRotX * matRotY;
-
-	//単位行列の設定
-	for (int i = 0; i < 4; i++) {
-		worldTransform_.matWorld_.m[i][i] = 1.0f;
-	}
-
-	worldTransform_.matWorld_ = matScale * matRot * matTrans;
-
-	//行列の転送
-	worldTransform_.TransferMatrix();
 }
 
 
 void GameScene::Update() {
+	Vector3 Vec = { 0,0,0 };
+
+	Vec.x = worldTransform_[1].translation_.x - worldTransform_[0].translation_.x;
+	Vec.y = worldTransform_[1].translation_.y - worldTransform_[0].translation_.y;
+
+	MatrixSynthetic(worldTransform_[0]);
+	MatrixSynthetic(worldTransform_[1]);
+
+	worldTransform_[0].TransferMatrix();
+	worldTransform_[1].TransferMatrix();
+
+	//行列の再計算
+	viewProjection_.UpdateMatrix();
+
+	//デバッグ表示
+	debugText_->SetPos(50, 10);
+	debugText_->Printf("pos %f", worldTransform_[0].translation_.x);
+
+	debugText_->SetPos(50, 30);
+	debugText_->Printf("U/I key : Chest kaitenn");
+
+	debugText_->SetPos(50, 50);
+	debugText_->Printf("J/K key : Hip kaitenn");
 
 	//デバッグカメラの更新
 	debugCamera_->Update();
@@ -113,7 +127,8 @@ void GameScene::Draw() {
 	/// </summary>
 
 	//モデル描画
-	model_->Draw(worldTransform_, debugCamera_->GetViewProjection(), textureHandle_);
+	model_->Draw(worldTransform_[0], viewProjection_, textureHandle_);
+	model_->Draw(worldTransform_[1], viewProjection_, textureHandle_);
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
@@ -135,4 +150,20 @@ void GameScene::Draw() {
 	Sprite::PostDraw();
 
 #pragma endregion
+}
+
+void MatrixSynthetic(WorldTransform& worldTransform){
+	Matrix4 matScale;
+	Matrix4 matRotX, matRotY, matRotZ;
+	Matrix4 matRot;
+	Matrix4 matTrans = MathUtility::Matrix4Identity();
+	Matrix4 matTrans2 = MathUtility::Matrix4Identity();
+	matScale.ScaleSet(worldTransform.scale_);
+	matRotZ.RotZSet(worldTransform.rotation_.z);
+	matRotX.RotXSet(worldTransform.rotation_.x);
+	matRotY.RotYSet(worldTransform.rotation_.y);
+	matTrans.TransSet(worldTransform.translation_);
+	matRot = matRotZ * matRotX * matRotY;
+	//合成
+	worldTransform.matWorld_ = matScale * matRot * matTrans;
 }
