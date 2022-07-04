@@ -131,10 +131,6 @@ void GameScene::Draw() {
 		model_->Draw(worldTransform_[i], viewProjection_, textureHandle_);
 	}
 
-	model_->Draw(worldTransform_[0], viewProjection_, textureHandle_);
-	model_->Draw(worldTransform_[1], viewProjection_, textureHandle_);
-	model_->Draw(worldTransform_[2], viewProjection_, textureHandle_);
-
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
 
