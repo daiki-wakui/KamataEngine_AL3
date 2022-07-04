@@ -89,9 +89,6 @@ void GameScene::Update() {
 	debugText_->SetPos(50, 30);
 	debugText_->Printf("Angle %f",Angle);
 
-	debugText_->SetPos(50, 50);
-	debugText_->Printf("J/K key : Hip kaitenn");
-
 	//デバッグカメラの更新
 	debugCamera_->Update();
 }
