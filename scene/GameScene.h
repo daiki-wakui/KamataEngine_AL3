@@ -62,11 +62,11 @@ private: // メンバ変数
 	Model* model_ = nullptr;
 
 	//ワールドトランスフォーム
-	WorldTransform worldTransform_[2];
+	WorldTransform worldTransform_[10];
 	//ビュープロジェクション
 	ViewProjection viewProjection_;
 
-	float viewAngle = 0.0f;
+	float Angle;
 	int i;
 };
 

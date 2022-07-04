@@ -41,18 +41,12 @@ void GameScene::Initialize() {
 	model_ = Model::Create();
 
 	//ワールドトランスフォームの初期化
-	worldTransform_[0].Initialize();
-	worldTransform_[1].Initialize();
 
-	worldTransform_[0].translation_ = {10,10,10};
-
-	MatrixSynthetic(worldTransform_[0]);
-	MatrixSynthetic(worldTransform_[1]);
-
-	//行列の転送
-	worldTransform_[0].TransferMatrix();
-	worldTransform_[1].TransferMatrix();
-
+	for (int i = 0; i < 10; i++) {
+		worldTransform_[i].Initialize();
+		MatrixSynthetic(worldTransform_[i]);
+		worldTransform_[i].TransferMatrix();
+	}
 	//ビュープロダクションの初期化
 	viewProjection_.Initialize();
 
@@ -68,18 +62,24 @@ void GameScene::Initialize() {
 
 
 void GameScene::Update() {
-	Vector3 Vec = { 0,0,0 };
 
-	Vec.x = worldTransform_[1].translation_.x - worldTransform_[0].translation_.x;
-	Vec.y = worldTransform_[1].translation_.y - worldTransform_[0].translation_.y;
+	//回転角度
+	Angle += 0.036f;
+	Angle = fmodf(Angle, PAI * 2.0f);
 
-	MatrixSynthetic(worldTransform_[0]);
-	MatrixSynthetic(worldTransform_[1]);
+	//オブジェクト毎に間隔開ける
+	for (int i = 0; i < 10; i++) {
+		worldTransform_[i].translation_ = { cosf(Angle + (0.63f * i)),sinf(Angle + (0.63f * i)),0.0f };
+		worldTransform_[i].translation_ *= 10;
 
-	worldTransform_[0].TransferMatrix();
-	worldTransform_[1].TransferMatrix();
+		//行列の合成
+		MatrixSynthetic(worldTransform_[i]);
 
-	//行列の再計算
+		//行列の転送
+		worldTransform_[i].TransferMatrix();
+	}
+
+	//ビュー行列の再計算
 	viewProjection_.UpdateMatrix();
 
 	//デバッグ表示
@@ -87,7 +87,7 @@ void GameScene::Update() {
 	debugText_->Printf("pos %f", worldTransform_[0].translation_.x);
 
 	debugText_->SetPos(50, 30);
-	debugText_->Printf("U/I key : Chest kaitenn");
+	debugText_->Printf("Angle %f",Angle);
 
 	debugText_->SetPos(50, 50);
 	debugText_->Printf("J/K key : Hip kaitenn");
@@ -127,8 +127,13 @@ void GameScene::Draw() {
 	/// </summary>
 
 	//モデル描画
+	for (int i = 0; i < 10; i++) {
+		model_->Draw(worldTransform_[i], viewProjection_, textureHandle_);
+	}
+
 	model_->Draw(worldTransform_[0], viewProjection_, textureHandle_);
 	model_->Draw(worldTransform_[1], viewProjection_, textureHandle_);
+	model_->Draw(worldTransform_[2], viewProjection_, textureHandle_);
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
