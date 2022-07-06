@@ -41,20 +41,23 @@ void GameScene::Initialize() {
 	model_ = Model::Create();
 
 	//ワールドトランスフォームの初期化
-
-	for (int i = 0; i < 10; i++) {
-		worldTransform_[i].Initialize();
-		MatrixSynthetic(worldTransform_[i]);
-		worldTransform_[i].TransferMatrix();
-	}
+	worldTransform_.Initialize();
+	MatrixSynthetic(worldTransform_);
+	worldTransform_.TransferMatrix();
+	
 	//ビュープロダクションの初期化
-	viewProjection_.Initialize();
+	for (int i = 0; i < 3; i++) {
+		viewProjection_[i].Initialize();
+		viewProjection_[i].eye = { posDist(engine),posDist(engine),posDist(engine) };
+	}
+
+	
 
 	//軸方向表示の表示を無効にする
 	AxisIndicator::GetInstance()->SetVisible(true);
 
 	//軸方向表示が参照するビュープロジェクションを指定する
-	AxisIndicator::GetInstance()->SetTargetViewProjection(&viewProjection_);
+	AxisIndicator::GetInstance()->SetTargetViewProjection(&viewProjection_[0]);
 
 	//ライン描画が参照するビュープロジェクションを指定する
 	PrimitiveDrawer::GetInstance()->SetViewProjection(&debugCamera_->GetViewProjection());
@@ -63,31 +66,35 @@ void GameScene::Initialize() {
 
 void GameScene::Update() {
 
-	//回転角度
-	Angle += 0.036f;
-	Angle = fmodf(Angle, PAI * 2.0f);
-
-	//オブジェクト毎に間隔開ける
-	for (int i = 0; i < 10; i++) {
-		worldTransform_[i].translation_ = { cosf(Angle + (0.63f * i)),sinf(Angle + (0.63f * i)),0.0f };
-		worldTransform_[i].translation_ *= 10;
-
-		//行列の合成
-		MatrixSynthetic(worldTransform_[i]);
-
-		//行列の転送
-		worldTransform_[i].TransferMatrix();
+	//スペースキーでカメラ切り替え
+	if (input_->TriggerKey(DIK_SPACE)) {
+		viewCameraState++;
+		if (viewCameraState > 2) {
+			viewCameraState = 0;
+		}
 	}
 
-	//ビュー行列の再計算
-	viewProjection_.UpdateMatrix();
+	//行列の合成
+	MatrixSynthetic(worldTransform_);
 
+	//行列の転送
+	worldTransform_.TransferMatrix();
+	
+
+	//ビュー行列の再計算
+	for (int i = 0; i < 3; i++) {
+		viewProjection_[i].UpdateMatrix();
+	}
+	
 	//デバッグ表示
 	debugText_->SetPos(50, 10);
-	debugText_->Printf("pos %f", worldTransform_[0].translation_.x);
+	debugText_->Printf("pos %f", worldTransform_.translation_.x);
 
 	debugText_->SetPos(50, 30);
-	debugText_->Printf("Angle %f",Angle);
+	debugText_->Printf("Camera1 %f,%f,%f",
+		viewProjection_[0].eye.x,
+		viewProjection_[0].eye.y,
+		viewProjection_[0].eye.z);
 
 	//デバッグカメラの更新
 	debugCamera_->Update();
@@ -124,8 +131,14 @@ void GameScene::Draw() {
 	/// </summary>
 
 	//モデル描画
-	for (int i = 0; i < 10; i++) {
-		model_->Draw(worldTransform_[i], viewProjection_, textureHandle_);
+	if (viewCameraState == 0) {
+		model_->Draw(worldTransform_, viewProjection_[0], textureHandle_);
+	}
+	else if (viewCameraState == 1) {
+		model_->Draw(worldTransform_, viewProjection_[1], textureHandle_);
+	}
+	else if (viewCameraState == 2) {
+		model_->Draw(worldTransform_, viewProjection_[2], textureHandle_);
 	}
 
 	// 3Dオブジェクト描画後処理
