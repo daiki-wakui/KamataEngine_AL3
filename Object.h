@@ -4,7 +4,7 @@
 #include "Input.h"
 #include "DebugText.h"
 
-class Player{
+class Object{
 public:
 	WorldTransform worldTransform_;
 	Model* model_ = nullptr;
@@ -16,7 +16,8 @@ public:
 
 	void Initialize(Model* model, uint32_t textureHandle);
 	void Update();
-	void Draw(ViewProjection &viewProjection);
+	void Draw(ViewProjection& viewProjection);
 };
 
 void MatrixConvert(WorldTransform& worldTransform_);
+

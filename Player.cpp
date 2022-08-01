@@ -12,6 +12,8 @@ void Player::Initialize(Model* model, uint32_t textureHandle){
 	input_ = Input::GetInstance();
 	debugText_ = DebugText::GetInstance();
 
+	worldTransform_.scale_ = { 1,1,10 };
+
 	//ワールド座標変換の初期化
 	worldTransform_.Initialize();
 }
@@ -31,10 +33,10 @@ void Player::Update(){
 		move = { -0.5f,0,0 };
 	}
 	else if (input_->PushKey(DIK_UP)) {
-		move = { 0,0.5f,0 };
+		move = { 0,0,0.5f };
 	}
 	else if (input_->PushKey(DIK_DOWN)) {
-		move = { 0,-0.5f,0 };
+		move = { 0,0,-0.5f };
 	}
 
 	worldTransform_.translation_ += move;
@@ -53,7 +55,7 @@ void Player::Update(){
 	//デバッグ
 	debugText_->SetPos(20, 20);
 	debugText_->Printf(
-		"PlayerPos %f,%f,%f",
+		"ray_Pos %f,%f,%f",
 		worldTransform_.translation_.x,
 		worldTransform_.translation_.y,
 		worldTransform_.translation_.z);

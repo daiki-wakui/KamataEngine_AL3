@@ -9,6 +9,8 @@
 #include "ViewProjection.h"
 #include "DebugCamera.h"
 #include "Player.h"
+#include "Object.h"
+
 
 /// <summary>
 /// ゲームシーン
@@ -61,12 +63,16 @@ private: // メンバ変数
 	Model* model_ = nullptr;
 
 	//ワールドトランスフォーム
-	
+	WorldTransform worldObject_;
+
+
 	//ビュープロジェクション
 	ViewProjection viewProjection_;
 
 	//自キャラ
 	Player* player_ = nullptr;
+
+	Object* object_ = nullptr;
 };
 
 void MatrixSynthetic(WorldTransform& worldTransform);
