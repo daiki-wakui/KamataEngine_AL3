@@ -31,6 +31,8 @@ void GameScene::Initialize() {
 	//3Dモデル
 	model_ = Model::Create();
 
+	viewProjection_.eye = { 0,12,-50 };
+
 	//ビュープロダクションの初期化
 	viewProjection_.Initialize();
 
@@ -43,14 +45,17 @@ void GameScene::Initialize() {
 	//ライン描画が参照するビュープロジェクションを指定する
 	PrimitiveDrawer::GetInstance()->SetViewProjection(&debugCamera_->GetViewProjection());
 
-	//playerと敵の生成
+	//playerの生成
 	Player* newPlayer = new Player();
 	newPlayer->Initialize(model_, textureHandle_);
 	player_.reset(newPlayer);
 
+	//敵の生成
 	Enemy* newEnemy = new Enemy();
 	newEnemy->Initialize(model_, worldTransform_.translation_, textureHandle_);
 	enemy_.reset(newEnemy);
+
+	enemy_->SetPlayer(newPlayer);
 }
 
 

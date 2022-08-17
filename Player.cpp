@@ -12,6 +12,8 @@ void Player::Initialize(Model* model, uint32_t textureHandle){
 	input_ = Input::GetInstance();
 	debugText_ = DebugText::GetInstance();
 
+	//worldTransform_.scale_ = { 1,1,1 };
+
 	//ワールド座標変換の初期化
 	worldTransform_.Initialize();
 }
@@ -143,4 +145,16 @@ void Player::Attack()
 		//弾を登録する
 		bullets_.push_back(std::move(newBullet));
 	}
+}
+
+//ワールド座標を取得
+Vector3 Player::GetWorldPosition()
+{
+	Vector3 worldPos;
+
+	worldPos.x = worldTransform_.translation_.x;
+	worldPos.y = worldTransform_.translation_.y;
+	worldPos.z = worldTransform_.translation_.z;
+
+	return worldPos;
 }

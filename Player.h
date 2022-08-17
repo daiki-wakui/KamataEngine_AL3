@@ -28,4 +28,6 @@ public:
 	void Move();
 	void Rotate();
 	void Attack();
+
+	Vector3 GetWorldPosition();
 };
