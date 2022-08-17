@@ -141,14 +141,14 @@ void GameScene::Update() {
 	debugCamera_->Update();
 
 	//デバッグ
-	debugText_->SetPos(20, 40);
+	/*debugText_->SetPos(20, 40);
 	debugText_->Printf(
 		"ray_start %f,%f,%f",
 		start.x,
 		start.y,
 		start.z);
 
-	//デバッグ
+	デバッグ
 	debugText_->SetPos(20, 60);
 	debugText_->Printf(
 		"ray_end %f,%f,%f",
@@ -168,12 +168,12 @@ void GameScene::Update() {
 		"ray_dir %f,%f,%f",
 		dir.x,
 		dir.y,
-		dir.z);
+		dir.z);*/
 
 	if (rayHit == true) {
 		debugText_->SetPos(600, 120);
 		debugText_->Printf(
-			"!!RayHit!!");
+			"!!Ray!!");
 	}
 }
 
