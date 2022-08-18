@@ -13,6 +13,7 @@ GameScene::GameScene() {}
 GameScene::~GameScene() {
 	delete model_;
 	delete debugCamera_;
+	delete modelSkydome_;
 }
 
 void GameScene::Initialize() {
@@ -31,7 +32,10 @@ void GameScene::Initialize() {
 	//3Dモデル
 	model_ = Model::Create();
 
-	viewProjection_.eye = { 0,12,-50 };
+	//3Dモデルの生成
+	modelSkydome_ = Model::CreateFromOBJ("tennkyuu", true);
+
+	//viewProjection_.eye = { 0,12,-50 };
 
 	//ビュープロダクションの初期化
 	viewProjection_.Initialize();
@@ -45,6 +49,10 @@ void GameScene::Initialize() {
 	//ライン描画が参照するビュープロジェクションを指定する
 	PrimitiveDrawer::GetInstance()->SetViewProjection(&debugCamera_->GetViewProjection());
 
+	Skydome* newSkydome = new Skydome();
+	newSkydome->Initialize(modelSkydome_);
+	skydome_.reset(newSkydome);
+
 	//playerの生成
 	Player* newPlayer = new Player();
 	newPlayer->Initialize(model_, textureHandle_);
@@ -56,6 +64,11 @@ void GameScene::Initialize() {
 	enemy_.reset(newEnemy);
 
 	enemy_->SetPlayer(newPlayer);
+
+	
+	/*skydome_ = new Skydome();
+	skydome_->Initialize(modelSkydome_);*/
+
 }
 
 
@@ -74,6 +87,8 @@ void GameScene::Update() {
 	if (enemy_) {
 		enemy_->Update();
 	}
+
+	skydome_->Update();
 
 	if (isDebugCameraActive_) {
 		debugCamera_->Update();
@@ -122,11 +137,15 @@ void GameScene::Draw() {
 	/// </summary>
 
 	//モデル描画
+	skydome_->Draw(viewProjection_);
+
 	player_->Draw(viewProjection_);
 
 	if (enemy_) {
 		enemy_->Draw(viewProjection_);
 	}
+
+	
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();

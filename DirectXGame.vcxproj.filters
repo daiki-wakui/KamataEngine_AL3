@@ -49,17 +49,17 @@
     <Filter Include="ヘッダー ファイル\math">
       <UniqueIdentifier>{647f4977-924a-4954-923f-5619e5afc9a3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ヘッダー ファイル\player">
+    <Filter Include="ヘッダー ファイル\scene\player">
       <UniqueIdentifier>{db412e1b-b438-43ac-b893-362e23729121}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\player">
+    <Filter Include="ヘッダー ファイル\scene\enemy">
+      <UniqueIdentifier>{d1cee962-dd96-4fc5-ac70-c7ea7112c282}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\scene\player">
       <UniqueIdentifier>{b23b5ba1-4839-4a24-bb3c-d95254f1922a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\enemy">
+    <Filter Include="ソース ファイル\scene\enemy">
       <UniqueIdentifier>{d4e7ba4d-3ee9-4e76-972c-498f80d3cdc8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ヘッダー ファイル\enemy">
-      <UniqueIdentifier>{d1cee962-dd96-4fc5-ac70-c7ea7112c282}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -85,19 +85,22 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Player.cpp">
-      <Filter>ソース ファイル\player</Filter>
+      <Filter>ソース ファイル\scene\player</Filter>
     </ClCompile>
     <ClCompile Include="PlayerBullet.cpp">
-      <Filter>ソース ファイル\player</Filter>
-    </ClCompile>
-    <ClCompile Include="math\Vector3.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\scene\player</Filter>
     </ClCompile>
     <ClCompile Include="Enemy.cpp">
-      <Filter>ソース ファイル\enemy</Filter>
+      <Filter>ソース ファイル\scene\enemy</Filter>
     </ClCompile>
     <ClCompile Include="EnemyBullet.cpp">
-      <Filter>ソース ファイル\enemy</Filter>
+      <Filter>ソース ファイル\scene\enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Skydome.cpp">
+      <Filter>ソース ファイル\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="math\Vector3.cpp">
+      <Filter>ソース ファイル\math</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -183,16 +186,19 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Player.h">
-      <Filter>ヘッダー ファイル\player</Filter>
+      <Filter>ヘッダー ファイル\scene\player</Filter>
     </ClInclude>
     <ClInclude Include="PlayerBullet.h">
-      <Filter>ヘッダー ファイル\player</Filter>
+      <Filter>ヘッダー ファイル\scene\player</Filter>
     </ClInclude>
     <ClInclude Include="Enemy.h">
-      <Filter>ヘッダー ファイル\enemy</Filter>
+      <Filter>ヘッダー ファイル\scene\enemy</Filter>
     </ClInclude>
     <ClInclude Include="EnemyBullet.h">
-      <Filter>ヘッダー ファイル\enemy</Filter>
+      <Filter>ヘッダー ファイル\scene\enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Skydome.h">
+      <Filter>ヘッダー ファイル\scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
