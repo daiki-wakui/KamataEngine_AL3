@@ -2,7 +2,7 @@
 #include <cassert>
 
 //playerの初期化
-void PlayerBullet::Initialize(Model* model, const Vector3& position, const Vector3& velocity)
+void PlayerBullet::Initialize(Model* model, const Vector3& position, const Vector3& velocity ,int color)
 {
 	//NULLポインタチェック
 	assert(model);
@@ -10,7 +10,14 @@ void PlayerBullet::Initialize(Model* model, const Vector3& position, const Vecto
 	//引数のデータをメンバ変数に代入
 	model_ = model;
 	velocity_ = velocity;
-	textureHandle_ = TextureManager::Load("black.png");
+
+	if (color == 0) {
+		textureHandle_ = TextureManager::Load("black.png");
+	}
+	if (color == 1) {
+		textureHandle_ = TextureManager::Load("white.png");
+	}
+	
 
 	//ワールド座標変換の初期化
 	worldTransform_.Initialize();

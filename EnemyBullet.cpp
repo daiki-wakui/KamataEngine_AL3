@@ -18,7 +18,7 @@ void EnemyBullet::Initialize(Model* model, const Vector3& position, const Vector
 
 void EnemyBullet::Update()
 {
-	worldTransform_.translation_ -= velocity_;
+	worldTransform_.translation_ -= velocity_/2;
 
 	worldTransform_.MatrixConvert();
 	worldTransform_.TransferMatrix();

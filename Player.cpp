@@ -1,24 +1,32 @@
 #include "Player.h"
 #include <cassert>
 
-void Player::Initialize(Model* model, uint32_t textureHandle){
+void Player::Initialize(Model* model, Model* model2){
 	//NULLポインタチェック
 	assert(model);
 
 	//引数のデータをメンバ変数に代入
 	model_ = model;
-	textureHandle_ = textureHandle;
+	model2_ = model2;
 
 	input_ = Input::GetInstance();
 	debugText_ = DebugText::GetInstance();
 
-	//worldTransform_.scale_ = { 1,1,1 };
+	worldTransform_.scale_ = { 3,3,3 };
+	worldTransform_.translation_ = { 0,-18,0 };
 
 	//ワールド座標変換の初期化
 	worldTransform_.Initialize();
 }
 
 void Player::Update(){
+	//ファイル名を指定してテクスチャを読み込む
+	if (playerColor == 0) {
+		textureHandle_ = TextureManager::Load("black.png");
+	}
+	else if (playerColor == 1) {
+		textureHandle_ = TextureManager::Load("white.png");
+	}
 
 	//デスフラグが立った弾を削除
 	bullets_.remove_if([](std::unique_ptr<PlayerBullet>& bullet) {
@@ -36,6 +44,38 @@ void Player::Update(){
 
 	//弾を出す
 	Attack();
+
+	if (input_->PushKey(DIK_R)) {
+		worldTransform_.rotation_.z += 0.5f;
+	}
+
+	if (input_->TriggerKey(DIK_C)) {
+		isChange = true;
+
+		if (playerColor == 0) {
+			playerColor = 1;
+		}
+		else if (playerColor == 1) {
+			playerColor = 0;
+		}
+	}
+
+	if (isChange == true) {
+
+		if (state == 1) {
+			worldTransform_.rotation_.z -= 0.75f;
+		}
+		if (state == 2) {
+			worldTransform_.rotation_.z += 0.75f;
+		}
+		
+		
+		if (worldTransform_.rotation_.z >= 6.5|| worldTransform_.rotation_.z <= -6.5) {
+			isChange = false;
+			worldTransform_.rotation_.z = 0;
+		}
+	}
+
 	//弾の更新処理
 	for (std::unique_ptr<PlayerBullet>& bullet : bullets_) {
 		bullet->Update();
@@ -60,8 +100,11 @@ void Player::Update(){
 		worldTransform_.translation_.x,
 		worldTransform_.translation_.y,
 		worldTransform_.translation_.z);
-	debugText_->SetPos(20, 40);
-	debugText_->Printf("U/I Key PlayerRote");
+	debugText_->SetPos(20, 100);
+	debugText_->Printf("%f",worldTransform_.rotation_.z);
+
+	debugText_->SetPos(20, 120);
+	debugText_->Printf("%d", state);
 
 	debugText_->SetPos(20, 60);
 	debugText_->Printf("UP/DOWN/RIGHT/LEFT Key PlayerMove");
@@ -104,9 +147,15 @@ void Player::Move(){
 
 	if (input_->PushKey(DIK_RIGHT)) {
 		move = { 0.5f,0,0 };
+		if (isChange == false) {
+			state = 1;
+		}
 	}
 	else if (input_->PushKey(DIK_LEFT)) {
 		move = { -0.5f,0,0 };
+		if (isChange == false) {
+			state = 2;
+		}
 	}
 	else if (input_->PushKey(DIK_UP)) {
 		move = { 0,0.5f,0 };
@@ -121,10 +170,10 @@ void Player::Move(){
 //回転関数
 void Player::Rotate(){
 	if (input_->PushKey(DIK_U)) {
-		worldTransform_.rotation_.y -= 0.05f;
+		worldTransform_.rotation_.z -= 0.05f;
 	}
 	else if (input_->PushKey(DIK_I)) {
-		worldTransform_.rotation_.y += 0.05f;
+		worldTransform_.rotation_.z += 0.05f;
 	}
 }
 
@@ -140,7 +189,7 @@ void Player::Attack()
 
 		//弾の生成と初期化
 		std::unique_ptr<PlayerBullet> newBullet = std::make_unique<PlayerBullet>();
-		newBullet->Initialize(model_, worldTransform_.translation_,velocity);
+		newBullet->Initialize(model2_, worldTransform_.translation_, velocity, playerColor);
 
 		//弾を登録する
 		bullets_.push_back(std::move(newBullet));

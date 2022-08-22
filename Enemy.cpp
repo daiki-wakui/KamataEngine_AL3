@@ -14,7 +14,7 @@ void Enemy::Initialize(Model* model, const Vector3& position, uint32_t textureHa
 	//ƒ[ƒ‹ƒhÀ•W•ÏŠ·‚Ì‰Šú‰»
 	worldTransform_.Initialize();
 
-	worldTransform_.translation_ = {20.0f,0.0f,100.0f};
+	worldTransform_.translation_ = {20.0f,0.0f,50.0f};
 
 	
 }
@@ -30,7 +30,7 @@ void Enemy::Update(){
 
 	if (bulletTimer < 0) {
 		Fire();
-		bulletTimer = 10;
+		bulletTimer = 30;
 	}
 
 	Vector3 move = { 0.0f,0.0f,0.0f };
@@ -38,7 +38,7 @@ void Enemy::Update(){
 	switch (phase_) {
 	case Phase::Approach:
 		move = { 0.0f,0.0f,-0.25f };
-		worldTransform_.translation_ += move;
+		//worldTransform_.translation_ += move;
 
 		if (worldTransform_.translation_.z < 0.0f) {
 			phase_ = Phase::Leave;

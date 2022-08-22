@@ -15,7 +15,7 @@ private:
 public:
 
 	//‰Šú‰»
-	void Initialize(Model *model,const Vector3& position,const Vector3 &velocity);
+	void Initialize(Model *model,const Vector3& position,const Vector3 &velocity,int color);
 	//XVˆ—
 	void Update();
 	//•`‰æˆ—

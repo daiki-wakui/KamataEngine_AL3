@@ -13,12 +13,31 @@ void Skydome::Initialize(Model* model){
 
 	worldTransform_.translation_ = { 0,0,0 };
 
-	worldTransform_.scale_ = { 70,70,70 };
+	worldTransform_.scale_ = { 0,0,0 };
 	//ワールド座標変換の初期化
 	worldTransform_.Initialize();
 }
 
 void Skydome::Update(){
+	Vector3 addSize = { 3,3,3 };
+
+	if (worldTransform_.scale_.x >= 50) {
+		addSize = { 1.5,1.5,1.5 };
+		
+	}
+	if (worldTransform_.scale_.x >= 70) {
+		addSize = { 1,1,1 };
+		
+	}
+	if (worldTransform_.scale_.x >= 120) {
+		addSize = { 0,0,0 };
+		
+	}
+
+	worldTransform_.rotation_.y += 0.0002f;
+
+	worldTransform_.scale_ += addSize;
+
 	//行列変換
 	worldTransform_.MatrixConvert();
 	//行列を送信

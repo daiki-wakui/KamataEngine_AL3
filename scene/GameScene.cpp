@@ -14,6 +14,7 @@ GameScene::~GameScene() {
 	delete model_;
 	delete debugCamera_;
 	delete modelSkydome_;
+	delete playerModel_;
 }
 
 void GameScene::Initialize() {
@@ -22,9 +23,6 @@ void GameScene::Initialize() {
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
 	debugText_ = DebugText::GetInstance();
-
-	//ファイル名を指定してテクスチャを読み込む
-	textureHandle_ = TextureManager::Load("player.png");
 
 	//デバッグカメラの生成
 	debugCamera_ = new DebugCamera(1280, 720);
@@ -35,7 +33,9 @@ void GameScene::Initialize() {
 	//3Dモデルの生成
 	modelSkydome_ = Model::CreateFromOBJ("tennkyuu", true);
 
-	//viewProjection_.eye = { 0,12,-50 };
+	playerModel_ = Model::CreateFromOBJ("playerModelB", true);
+
+	viewProjection_.eye = { 0,10,-50 };
 
 	//ビュープロダクションの初期化
 	viewProjection_.Initialize();
@@ -55,7 +55,7 @@ void GameScene::Initialize() {
 
 	//playerの生成
 	Player* newPlayer = new Player();
-	newPlayer->Initialize(model_, textureHandle_);
+	newPlayer->Initialize(playerModel_,model_);
 	player_.reset(newPlayer);
 
 	//敵の生成
@@ -64,10 +64,6 @@ void GameScene::Initialize() {
 	enemy_.reset(newEnemy);
 
 	enemy_->SetPlayer(newPlayer);
-
-	
-	/*skydome_ = new Skydome();
-	skydome_->Initialize(modelSkydome_);*/
 
 }
 
@@ -82,13 +78,20 @@ void GameScene::Update() {
 		isDebugCameraActive_ = false;
 	}
 #endif // _DEBUG
+	if (input_->TriggerKey(DIK_S)) {
+		isStart = 1;
+	}
 	player_->Update();
 
-	if (enemy_) {
-		enemy_->Update();
-	}
 
-	skydome_->Update();
+	if (isStart == 1) {
+		skydome_->Update();
+		
+		if (enemy_) {
+			enemy_->Update();
+		}
+	}
+	
 
 	if (isDebugCameraActive_) {
 		debugCamera_->Update();
@@ -137,15 +140,17 @@ void GameScene::Draw() {
 	/// </summary>
 
 	//モデル描画
-	skydome_->Draw(viewProjection_);
+	
+	if (isStart == 1) {
+		skydome_->Draw(viewProjection_);
+		
 
-	player_->Draw(viewProjection_);
-
-	if (enemy_) {
-		enemy_->Draw(viewProjection_);
+		if (enemy_) {
+			enemy_->Draw(viewProjection_);
+		}
 	}
 
-	
+	player_->Draw(viewProjection_);
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();

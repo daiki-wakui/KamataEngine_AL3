@@ -65,6 +65,8 @@ private: // メンバ変数
 
 	Model* modelSkydome_ = nullptr;
 
+	Model* playerModel_ = nullptr;
+
 	//ワールドトランスフォーム
 	WorldTransform worldTransform_;
 	//ビュープロジェクション
@@ -78,6 +80,8 @@ private: // メンバ変数
 	//Skydome* skydome_ = nullptr;
 
 	bool isDebugCameraActive_ = false;
+
+	int isStart = 0;
 };
 
 void MatrixSynthetic(WorldTransform& worldTransform);
