@@ -4,7 +4,6 @@
 
 class EnemyBullet{
 private:
-	WorldTransform worldTransform_;
 	Model* model_ = nullptr;
 	uint32_t textureHandle_ = 0;
 	Vector3 velocity_;
@@ -13,6 +12,7 @@ private:
 	int32_t deathTimer_ = kLifeTime;
 	bool isDead_ = false;
 public:
+	WorldTransform worldTransform_;
 
 	//èâä˙âª
 	void Initialize(Model* model, const Vector3& position, const Vector3& velocity);
@@ -22,5 +22,10 @@ public:
 	void Draw(const ViewProjection& viewProjection);
 
 	bool IsDead() const { return isDead_; }
+
+	Vector3 GetWorldPosition();
+
+	//ìñÇΩÇËîªíË
+	void OnCollision();
 };
 

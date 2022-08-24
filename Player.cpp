@@ -34,8 +34,10 @@ void Player::Update(){
 	});
 
 	//à⁄ìÆå¿äEç¿ïW
-	const float kMoveLimitX = 35.0f;
-	const float kMoveLimitY = 18.5f;
+	const float kMoveLimitX = 85.0f;
+	const float kMoveLimitY = 40.0f;
+	const float kMoveLimitZ = 70.0f;
+
 
 	//à⁄ìÆä÷êî
 	Move();
@@ -64,15 +66,20 @@ void Player::Update(){
 
 		if (state == 1) {
 			worldTransform_.rotation_.z -= 0.75f;
+			worldTransform_.translation_.x += dashSpeed;
+			dashSpeed-=0.5f;
 		}
 		if (state == 2) {
 			worldTransform_.rotation_.z += 0.75f;
+			worldTransform_.translation_.x -= dashSpeed;
+			dashSpeed-=0.5f;
 		}
 		
 		
 		if (worldTransform_.rotation_.z >= 6.5|| worldTransform_.rotation_.z <= -6.5) {
 			isChange = false;
 			worldTransform_.rotation_.z = 0;
+			dashSpeed = 4.0f;
 		}
 	}
 
@@ -86,6 +93,8 @@ void Player::Update(){
 	worldTransform_.translation_.x = min(worldTransform_.translation_.x, +kMoveLimitX);
 	worldTransform_.translation_.y = max(worldTransform_.translation_.y, -kMoveLimitY);
 	worldTransform_.translation_.y = min(worldTransform_.translation_.y, +kMoveLimitY);
+	worldTransform_.translation_.z = max(worldTransform_.translation_.z, -kMoveLimitZ);
+	worldTransform_.translation_.z = min(worldTransform_.translation_.z, +kMoveLimitZ);
 
 	//çsóÒïœä∑
 	MatrixConvert();
@@ -94,13 +103,13 @@ void Player::Update(){
 	worldTransform_.TransferMatrix();
 
 	//ÉfÉoÉbÉO
-	debugText_->SetPos(20, 20);
+	/*debugText_->SetPos(20, 20);
 	debugText_->Printf(
 		"PlayerPos %f,%f,%f",
 		worldTransform_.translation_.x,
 		worldTransform_.translation_.y,
-		worldTransform_.translation_.z);
-	debugText_->SetPos(20, 100);
+		worldTransform_.translation_.z);*/
+	/*debugText_->SetPos(20, 100);
 	debugText_->Printf("%f",worldTransform_.rotation_.z);
 
 	debugText_->SetPos(20, 120);
@@ -110,13 +119,14 @@ void Player::Update(){
 	debugText_->Printf("UP/DOWN/RIGHT/LEFT Key PlayerMove");
 
 	debugText_->SetPos(20, 80);
-	debugText_->Printf("SPACE Key PlayerBullet");
+	debugText_->Printf("SPACE Key PlayerBullet");*/
 }
 
 //ï`âÊä÷êî
 void Player::Draw(ViewProjection &viewProjection){
 	//3DÉÇÉfÉãï`âÊ
 	model_->Draw(worldTransform_, viewProjection, textureHandle_);
+	model2_->Draw(worldTransform_, viewProjection, textureHandle_);
 
 	for (std::unique_ptr<PlayerBullet>& bullet : bullets_){
 		bullet->Draw(viewProjection);
@@ -146,22 +156,28 @@ void Player::Move(){
 	move = { 0,0,0 };
 
 	if (input_->PushKey(DIK_RIGHT)) {
-		move = { 0.5f,0,0 };
+		move += { 0.5f,0,0 };
 		if (isChange == false) {
 			state = 1;
 		}
 	}
-	else if (input_->PushKey(DIK_LEFT)) {
-		move = { -0.5f,0,0 };
+	if (input_->PushKey(DIK_LEFT)) {
+		move += { -0.5f,0,0 };
 		if (isChange == false) {
 			state = 2;
 		}
 	}
-	else if (input_->PushKey(DIK_UP)) {
-		move = { 0,0.5f,0 };
+	if (input_->PushKey(DIK_UP)) {
+		move += { 0,0,0.5f };
 	}
-	else if (input_->PushKey(DIK_DOWN)) {
-		move = { 0,-0.5f,0 };
+	if (input_->PushKey(DIK_DOWN)) {
+		move += { 0,0,-0.5f };
+	}
+	if (input_->PushKey(DIK_Z)) {
+		move += { 0, 0.5f, 0};
+	}
+	if (input_->PushKey(DIK_X)) {
+		move += { 0, -0.5f, 0};
 	}
 
 	worldTransform_.translation_ += move;
@@ -170,29 +186,37 @@ void Player::Move(){
 //âÒì]ä÷êî
 void Player::Rotate(){
 	if (input_->PushKey(DIK_U)) {
-		worldTransform_.rotation_.z -= 0.05f;
+		worldTransform_.rotation_.y -= 0.05f;
 	}
 	else if (input_->PushKey(DIK_I)) {
-		worldTransform_.rotation_.z += 0.05f;
+		worldTransform_.rotation_.y += 0.05f;
 	}
 }
 
 //íeÇÃçUåÇ
 void Player::Attack()
 {
-	if (input_->TriggerKey(DIK_SPACE)) {
+	coolTime--;
+
+	if (input_->PushKey(DIK_SPACE)) {
 		//íeÇÃë¨ìx
 		const float kBulletSpeed = 1.0f;
 		Vector3 velocity(0, 0, kBulletSpeed);
 
 		velocity.multiplyMat4(worldTransform_.matWorld_);
 
-		//íeÇÃê∂ê¨Ç∆èâä˙âª
-		std::unique_ptr<PlayerBullet> newBullet = std::make_unique<PlayerBullet>();
-		newBullet->Initialize(model2_, worldTransform_.translation_, velocity, playerColor);
+		if (coolTime < 0) {
+			//íeÇÃê∂ê¨Ç∆èâä˙âª
+			std::unique_ptr<PlayerBullet> newBullet = std::make_unique<PlayerBullet>();
+			newBullet->Initialize(model2_, worldTransform_.translation_, velocity, playerColor);
+			std::unique_ptr<PlayerBullet> newBullet2 = std::make_unique<PlayerBullet>();
+			newBullet2->Initialize2(model2_, worldTransform_.translation_, velocity, playerColor);
+			//íeÇìoò^Ç∑ÇÈ
+			bullets_.push_back(std::move(newBullet));
+			bullets_.push_back(std::move(newBullet2));
 
-		//íeÇìoò^Ç∑ÇÈ
-		bullets_.push_back(std::move(newBullet));
+			coolTime = 7;
+		}
 	}
 }
 
@@ -206,4 +230,8 @@ Vector3 Player::GetWorldPosition()
 	worldPos.z = worldTransform_.translation_.z;
 
 	return worldPos;
+}
+
+void Player::OnCollision()
+{
 }

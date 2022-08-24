@@ -9,7 +9,7 @@
 
 class Player{
 private:
-	WorldTransform worldTransform_;
+	
 	Model* model_ = nullptr;
 	Model* model2_ = nullptr;
 	uint32_t textureHandle_ = 0;
@@ -23,8 +23,11 @@ private:
 
 	bool isChange = false;
 	int state = 2;
+	int coolTime = 5;
+	float dashSpeed = 4.0f;
 
 public:
+	WorldTransform worldTransform_;
 	int playerColor = 0;
 
 	void Initialize(Model* model, Model* model2);
@@ -36,4 +39,10 @@ public:
 	void Attack();
 
 	Vector3 GetWorldPosition();
+
+	//“–‚½‚è”»’è
+	void OnCollision();
+
+	//’eƒŠƒXƒg‚ðŽæ“¾
+	const std::list<std::unique_ptr<PlayerBullet>>& GetBullets() { return bullets_; }
 };

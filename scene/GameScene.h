@@ -12,6 +12,7 @@
 #include "Enemy.h"
 #include "Skydome.h"
 #include <memory>
+#include <list>
 
 /// <summary>
 /// ゲームシーン
@@ -57,6 +58,14 @@ private: // メンバ変数
 	//テクスチャハンドル
 	uint32_t textureHandle_ = 0;
 
+	uint32_t UItextureHandle_ = 0;
+	uint32_t UItextureHandleBlack_ = 0;
+	uint32_t UItextureHandleTitle_ = 0;
+
+	Sprite* sprite_ = nullptr;
+	Sprite* spriteBlack_ = nullptr;
+	Sprite* spriteTitle_ = nullptr;
+
 	//デバッグカメラ
 	DebugCamera* debugCamera_ = nullptr;
 
@@ -65,6 +74,7 @@ private: // メンバ変数
 
 	Model* modelSkydome_ = nullptr;
 
+	Model* modelWorlddome_ = nullptr;
 	Model* playerModel_ = nullptr;
 
 	//ワールドトランスフォーム
@@ -75,13 +85,24 @@ private: // メンバ変数
 	//自キャラ
 	//Player* player_ = nullptr;
 	std::unique_ptr<Player> player_;
+
 	std::unique_ptr<Enemy> enemy_;
+
 	std::unique_ptr<Skydome> skydome_;
+	std::unique_ptr<Skydome> worlddome_;
 	//Skydome* skydome_ = nullptr;
+
+	//std::list<std::unique_ptr<Enemy>> enemys_;
 
 	bool isDebugCameraActive_ = false;
 
+	//ゲーム開始フラグ
 	int isStart = 0;
+	//プレイヤーの色判別
+	int playerColor = 0;
+
+	//衝突判定
+	void CheakAllCollisions();
 };
 
 void MatrixSynthetic(WorldTransform& worldTransform);

@@ -15,7 +15,6 @@ enum class Phase {
 
 class Enemy{
 private:
-	WorldTransform worldTransform_;
 	Model* model_ = nullptr;
 	uint32_t textureHandle_ = 0;
 
@@ -31,6 +30,7 @@ private:
 	Vector3 enemyPos;
 	Vector3	differenceVec;
 public:
+	WorldTransform worldTransform_;
 
 	//‰Šú‰»
 	void Initialize(Model* model, const Vector3& position, uint32_t textureHandle);
@@ -45,5 +45,11 @@ public:
 	void SetPlayer(Player* player) { player_ = player; }
 
 	Vector3 GetWorldPosition();
+
+	//“–‚½‚è”»’è
+	void OnCollision();
+
+	//’eƒŠƒXƒg‚ğæ“¾
+	const std::list<std::unique_ptr<EnemyBullet>>& GetBullets() { return bullets_; }
 };
 

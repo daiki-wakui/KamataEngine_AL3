@@ -1,9 +1,22 @@
 #include "Enemy.h"
 #include "Player.h"
 #include <cassert>
+#include <random>
 
 //初期化処理
 void Enemy::Initialize(Model* model, const Vector3& position, uint32_t textureHandle){
+	//乱数シード生成器
+	std::random_device seed_gen;
+	//メルセンヌ・ツイスターの乱数エンジン
+	std::mt19937_64 engine(seed_gen());
+	//乱数範囲の指定
+	// 
+	
+
+	//座標
+	std::uniform_real_distribution<float> posDistX(10.0f, 50.0f);
+	std::uniform_real_distribution<float> posDist(-50.0f, 50.0f);
+
 	//NULLポインタチェック
 	assert(model);
 
@@ -14,7 +27,8 @@ void Enemy::Initialize(Model* model, const Vector3& position, uint32_t textureHa
 	//ワールド座標変換の初期化
 	worldTransform_.Initialize();
 
-	worldTransform_.translation_ = {20.0f,0.0f,50.0f};
+	worldTransform_.scale_ = { 3,3,3 };
+	worldTransform_.translation_ = { posDist(engine),0.0f,80.0f };
 
 	
 }
@@ -30,7 +44,7 @@ void Enemy::Update(){
 
 	if (bulletTimer < 0) {
 		Fire();
-		bulletTimer = 30;
+		bulletTimer = 70;
 	}
 
 	Vector3 move = { 0.0f,0.0f,0.0f };
@@ -101,4 +115,8 @@ Vector3 Enemy::GetWorldPosition()
 	worldPos.z = worldTransform_.translation_.z;
 
 	return worldPos;
+}
+
+void Enemy::OnCollision()
+{
 }

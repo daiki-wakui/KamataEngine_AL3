@@ -4,7 +4,7 @@
 
 class PlayerBullet{
 private:
-	WorldTransform worldTransform_;
+	
 	Model* model_ = nullptr;
 	uint32_t textureHandle_ = 0;
 	Vector3 velocity_;
@@ -13,14 +13,21 @@ private:
 	int32_t deathTimer_ = kLifeTime;
 	bool isDead_ = false;
 public:
+	WorldTransform worldTransform_;
 
 	//‰Šú‰»
 	void Initialize(Model *model,const Vector3& position,const Vector3 &velocity,int color);
+	void Initialize2(Model* model, const Vector3& position, const Vector3& velocity, int color);
 	//XVˆ—
 	void Update();
 	//•`‰æˆ—
 	void Draw(const ViewProjection& viewProjection);
 
 	bool IsDead() const { return isDead_; }
+
+	Vector3 GetWorldPosition();
+
+	//“–‚½‚è”»’è
+	void OnCollision();
 };
 

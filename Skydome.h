@@ -15,6 +15,7 @@ public:
 
 	void Initialize(Model* model);
 	void Update();
+	void UpdateN();
 	void Draw(ViewProjection& viewProjection);
 };
 

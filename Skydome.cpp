@@ -22,14 +22,14 @@ void Skydome::Update(){
 	Vector3 addSize = { 3,3,3 };
 
 	if (worldTransform_.scale_.x >= 50) {
+		addSize = { 2,2,2 };
+		
+	}
+	if (worldTransform_.scale_.x >= 100) {
 		addSize = { 1.5,1.5,1.5 };
 		
 	}
-	if (worldTransform_.scale_.x >= 70) {
-		addSize = { 1,1,1 };
-		
-	}
-	if (worldTransform_.scale_.x >= 120) {
+	if (worldTransform_.scale_.x >= 150) {
 		addSize = { 0,0,0 };
 		
 	}
@@ -38,6 +38,15 @@ void Skydome::Update(){
 
 	worldTransform_.scale_ += addSize;
 
+	//行列変換
+	worldTransform_.MatrixConvert();
+	//行列を送信
+	worldTransform_.TransferMatrix();
+}
+
+void Skydome::UpdateN()
+{
+	worldTransform_.scale_ = { 200,200,200 };
 	//行列変換
 	worldTransform_.MatrixConvert();
 	//行列を送信
