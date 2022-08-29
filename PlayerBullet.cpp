@@ -23,7 +23,7 @@ void PlayerBullet::Initialize(Model* model, const Vector3& position, const Vecto
 	worldTransform_.Initialize();
 
 	worldTransform_.translation_ = position;
-	worldTransform_.translation_.x -= 7;
+	//worldTransform_.translation_.x -= 7;
 	worldTransform_.translation_.y += 5;
 }
 

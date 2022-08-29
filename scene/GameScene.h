@@ -18,7 +18,6 @@
 /// ゲームシーン
 /// </summary>
 class GameScene {
-
 public: // メンバ関数
   /// <summary>
   /// コンストクラタ
@@ -86,13 +85,15 @@ private: // メンバ変数
 	//Player* player_ = nullptr;
 	std::unique_ptr<Player> player_;
 
-	std::unique_ptr<Enemy> enemy_;
+	Player* newPlayer = new Player();
+
+	//std::unique_ptr<Enemy> enemy_;
 
 	std::unique_ptr<Skydome> skydome_;
 	std::unique_ptr<Skydome> worlddome_;
 	//Skydome* skydome_ = nullptr;
 
-	//std::list<std::unique_ptr<Enemy>> enemys_;
+	std::list<std::unique_ptr<Enemy>> enemys_;
 
 	bool isDebugCameraActive_ = false;
 
@@ -101,8 +102,14 @@ private: // メンバ変数
 	//プレイヤーの色判別
 	int playerColor = 0;
 
+	int frame = 0;
+	int popEnemyTimer = 0;
+
 	//衝突判定
 	void CheakAllCollisions();
+
+	//カメラワーク
+	void CameraUpdate();
 };
 
 void MatrixSynthetic(WorldTransform& worldTransform);

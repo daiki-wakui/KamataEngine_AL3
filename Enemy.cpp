@@ -28,7 +28,7 @@ void Enemy::Initialize(Model* model, const Vector3& position, uint32_t textureHa
 	worldTransform_.Initialize();
 
 	worldTransform_.scale_ = { 3,3,3 };
-	worldTransform_.translation_ = { posDist(engine),0.0f,80.0f };
+	worldTransform_.translation_ = { posDist(engine),posDist(engine),80.0f };
 
 	
 }

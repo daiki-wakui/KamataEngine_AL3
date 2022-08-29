@@ -1,6 +1,7 @@
 #include "WorldTransform.h"
 #include <math.h>
 
+//ƒ[ƒ‹ƒhs—ñ‚Ì‡¬
 void WorldTransform::MatrixConvert()
 {
 	Matrix4 matScale;

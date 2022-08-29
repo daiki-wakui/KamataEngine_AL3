@@ -26,7 +26,12 @@ private:
 	int coolTime = 5;
 	float dashSpeed = 4.0f;
 
+	//3Dレティクル用ワールド座標
+	WorldTransform worldTransform3DReticle_;
+
 public:
+	std::unique_ptr<Sprite> sprite2DReticle_;
+
 	WorldTransform worldTransform_;
 	int playerColor = 0;
 
@@ -42,6 +47,8 @@ public:
 
 	//当たり判定
 	void OnCollision();
+
+	void DrawUI();
 
 	//弾リストを取得
 	const std::list<std::unique_ptr<PlayerBullet>>& GetBullets() { return bullets_; }

@@ -2,6 +2,11 @@
 #include <cassert>
 
 void Player::Initialize(Model* model, Model* model2){
+	uint32_t textureReticle = TextureManager::Load("ret.png");
+
+	sprite2DReticle_.reset(Sprite::Create(textureReticle, Vector2(1280/2, 720/2), Vector4(1, 1, 1, 1), { 0.5f,0.5f }));
+
+
 	//NULLポインタチェック
 	assert(model);
 
@@ -17,6 +22,8 @@ void Player::Initialize(Model* model, Model* model2){
 
 	//ワールド座標変換の初期化
 	worldTransform_.Initialize();
+
+	worldTransform3DReticle_.Initialize();
 }
 
 void Player::Update(){
@@ -102,13 +109,23 @@ void Player::Update(){
 	//行列を送信
 	worldTransform_.TransferMatrix();
 
+	const float kDistancePlayerTo3DReticle = 50.0f;
+
+	Vector3 offset = { 0,0,1.0f };
+	offset.multiplyMat4(worldTransform_.matWorld_);
+	offset.normalize();
+	offset *= kDistancePlayerTo3DReticle;
+
+	worldTransform3DReticle_.translation_ = worldTransform_.translation_;
+	worldTransform3DReticle_.translation_.z += kDistancePlayerTo3DReticle;
+	worldTransform3DReticle_.translation_.y += 7.0f;
+
+	//行列変換
+	worldTransform3DReticle_.MatrixConvert();
+	worldTransform3DReticle_.TransferMatrix();
+
 	//デバッグ
-	/*debugText_->SetPos(20, 20);
-	debugText_->Printf(
-		"PlayerPos %f,%f,%f",
-		worldTransform_.translation_.x,
-		worldTransform_.translation_.y,
-		worldTransform_.translation_.z);*/
+	
 	/*debugText_->SetPos(20, 100);
 	debugText_->Printf("%f",worldTransform_.rotation_.z);
 
@@ -126,7 +143,7 @@ void Player::Update(){
 void Player::Draw(ViewProjection &viewProjection){
 	//3Dモデル描画
 	model_->Draw(worldTransform_, viewProjection, textureHandle_);
-	model2_->Draw(worldTransform_, viewProjection, textureHandle_);
+	model2_->Draw(worldTransform3DReticle_, viewProjection, textureHandle_);
 
 	for (std::unique_ptr<PlayerBullet>& bullet : bullets_){
 		bullet->Draw(viewProjection);
@@ -200,10 +217,14 @@ void Player::Attack()
 
 	if (input_->PushKey(DIK_SPACE)) {
 		//弾の速度
-		const float kBulletSpeed = 1.0f;
+		const float kBulletSpeed = 2.0f;
 		Vector3 velocity(0, 0, kBulletSpeed);
 
-		velocity.multiplyMat4(worldTransform_.matWorld_);
+		velocity = worldTransform3DReticle_.translation_ - worldTransform_.translation_;
+		velocity.y -= 10.0f;
+		velocity.multiplyMat4(worldTransform3DReticle_.matWorld_);
+		velocity.normalize();
+		velocity *= kBulletSpeed;
 
 		if (coolTime < 0) {
 			//弾の生成と初期化
@@ -217,7 +238,15 @@ void Player::Attack()
 
 			coolTime = 7;
 		}
+
+		debugText_->SetPos(20, 60);
+		debugText_->Printf(
+			"vec %f,%f,%f",
+			velocity.x, velocity.y, velocity.z);
 	}
+
+	
+
 }
 
 //ワールド座標を取得
@@ -234,4 +263,9 @@ Vector3 Player::GetWorldPosition()
 
 void Player::OnCollision()
 {
+}
+
+void Player::DrawUI()
+{
+	sprite2DReticle_->Draw();
 }
