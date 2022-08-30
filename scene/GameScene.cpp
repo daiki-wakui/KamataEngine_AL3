@@ -45,6 +45,11 @@ void GameScene::Initialize() {
 	modelWorlddome_ = Model::CreateFromOBJ("Map", true);
 	playerModel_ = Model::CreateFromOBJ("playerModelB", true);
 
+	bulletModel_b = Model::CreateFromOBJ("playerBullet_Black", true);
+	bulletModel_w = Model::CreateFromOBJ("playerBullet_White", true);
+
+	enemyModel_ = Model::CreateFromOBJ("enemy", true);
+
 	viewProjection_.eye = { 0,10,-50 };
 
 	//ビュープロダクションの初期化
@@ -70,7 +75,7 @@ void GameScene::Initialize() {
 	worlddome_.reset(newWorlddome);
 
 	//playerの生成
-	newPlayer->Initialize(playerModel_,model_);
+	newPlayer->Initialize(playerModel_,model_,bulletModel_b,bulletModel_w);
 	player_.reset(newPlayer);
 
 	//敵の生成
@@ -83,7 +88,7 @@ void GameScene::Initialize() {
 	//敵の生成と初期化
 	for (int i = 0; i < 3; i++) {
 		std::unique_ptr<Enemy> newEnemy = std::make_unique<Enemy>();
-		newEnemy->Initialize(model_, worldTransform_.translation_, textureHandle_);
+		newEnemy->Initialize(0,enemyModel_,bulletModel_b,bulletModel_w, worldTransform_.translation_, textureHandle_);
 		newEnemy->SetPlayer(newPlayer);
 
 		//敵を登録する

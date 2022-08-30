@@ -16,6 +16,10 @@ enum class Phase {
 class Enemy{
 private:
 	Model* model_ = nullptr;
+	Model* model2_ = nullptr;
+	Model* model3_ = nullptr;
+
+
 	uint32_t textureHandle_ = 0;
 
 	Phase phase_ = Phase::Approach;
@@ -29,11 +33,14 @@ private:
 	Vector3 playerPos;
 	Vector3 enemyPos;
 	Vector3	differenceVec;
+
+	int color_;
+
 public:
 	WorldTransform worldTransform_;
 
 	//‰Šú‰»
-	void Initialize(Model* model, const Vector3& position, uint32_t textureHandle);
+	void Initialize(int color,Model* model, Model* model2, Model* model3, const Vector3& position, uint32_t textureHandle);
 	//XVˆ—
 	void Update();
 	//•`‰æˆ—

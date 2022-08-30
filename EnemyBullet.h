@@ -5,6 +5,8 @@
 class EnemyBullet{
 private:
 	Model* model_ = nullptr;
+	
+
 	uint32_t textureHandle_ = 0;
 	Vector3 velocity_;
 

@@ -1,7 +1,7 @@
 #include "Player.h"
 #include <cassert>
 
-void Player::Initialize(Model* model, Model* model2){
+void Player::Initialize(Model* model, Model* model2, Model* model3, Model* model4){
 	uint32_t textureReticle = TextureManager::Load("ret.png");
 
 	sprite2DReticle_.reset(Sprite::Create(textureReticle, Vector2(1280/2, 720/2), Vector4(1, 1, 1, 1), { 0.5f,0.5f }));
@@ -13,6 +13,11 @@ void Player::Initialize(Model* model, Model* model2){
 	//ˆø”‚Ìƒf[ƒ^‚ğƒƒ“ƒo•Ï”‚É‘ã“ü
 	model_ = model;
 	model2_ = model2;
+	model3_ = model3;
+	model4_ = model4;
+
+	/*bulletModel_b = Model::CreateFromOBJ("playerBullet_Black",true);
+	bulletModel_w = Model::CreateFromOBJ("playerBullet_White",true);*/
 
 	input_ = Input::GetInstance();
 	debugText_ = DebugText::GetInstance();
@@ -227,14 +232,27 @@ void Player::Attack()
 		velocity *= kBulletSpeed;
 
 		if (coolTime < 0) {
-			//’e‚Ì¶¬‚Æ‰Šú‰»
-			std::unique_ptr<PlayerBullet> newBullet = std::make_unique<PlayerBullet>();
-			newBullet->Initialize(model2_, worldTransform_.translation_, velocity, playerColor);
-			std::unique_ptr<PlayerBullet> newBullet2 = std::make_unique<PlayerBullet>();
-			newBullet2->Initialize2(model2_, worldTransform_.translation_, velocity, playerColor);
-			//’e‚ğ“o˜^‚·‚é
-			bullets_.push_back(std::move(newBullet));
-			bullets_.push_back(std::move(newBullet2));
+			if (playerColor == 0) {
+				//’e‚Ì¶¬‚Æ‰Šú‰»
+				std::unique_ptr<PlayerBullet> newBullet = std::make_unique<PlayerBullet>();
+				newBullet->Initialize(model3_, worldTransform_.translation_, velocity, playerColor);
+				std::unique_ptr<PlayerBullet> newBullet2 = std::make_unique<PlayerBullet>();
+				newBullet2->Initialize2(model3_, worldTransform_.translation_, velocity, playerColor);
+				//’e‚ğ“o˜^‚·‚é
+				bullets_.push_back(std::move(newBullet));
+				bullets_.push_back(std::move(newBullet2));
+			}
+			else if (playerColor == 1) {
+				//’e‚Ì¶¬‚Æ‰Šú‰»
+				std::unique_ptr<PlayerBullet> newBullet = std::make_unique<PlayerBullet>();
+				newBullet->Initialize(model4_, worldTransform_.translation_, velocity, playerColor);
+				std::unique_ptr<PlayerBullet> newBullet2 = std::make_unique<PlayerBullet>();
+				newBullet2->Initialize2(model4_, worldTransform_.translation_, velocity, playerColor);
+				//’e‚ğ“o˜^‚·‚é
+				bullets_.push_back(std::move(newBullet));
+				bullets_.push_back(std::move(newBullet2));
+			}
+			
 
 			coolTime = 7;
 		}

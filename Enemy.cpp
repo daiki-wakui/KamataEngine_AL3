@@ -4,7 +4,7 @@
 #include <random>
 
 //初期化処理
-void Enemy::Initialize(Model* model, const Vector3& position, uint32_t textureHandle){
+void Enemy::Initialize(int color,Model* model, Model* model2, Model* model3, const Vector3& position, uint32_t textureHandle){
 	//乱数シード生成器
 	std::random_device seed_gen;
 	//メルセンヌ・ツイスターの乱数エンジン
@@ -22,7 +22,18 @@ void Enemy::Initialize(Model* model, const Vector3& position, uint32_t textureHa
 
 	//引数のデータをメンバ変数に代入
 	model_ = model;
-	textureHandle_ = TextureManager::Load("enemy.png");
+	model2_ = model2;
+	model3_ = model3;
+
+	if (color == 0) {
+		textureHandle_ = TextureManager::Load("black.png");
+	}
+
+	if (color == 1) {
+		textureHandle_ = TextureManager::Load("white.png");
+	}
+
+	color_ = color;
 
 	//ワールド座標変換の初期化
 	worldTransform_.Initialize();
@@ -98,12 +109,23 @@ void Enemy::Fire()
 
 	velocity.multiplyMat4(worldTransform_.matWorld_);
 
-	//弾の生成と初期化
-	std::unique_ptr<EnemyBullet> newBullet = std::make_unique<EnemyBullet>();
-	newBullet->Initialize(model_, worldTransform_.translation_, velocity);
+	if (color_ == 0) {
+		//弾の生成と初期化
+		std::unique_ptr<EnemyBullet> newBullet = std::make_unique<EnemyBullet>();
+		newBullet->Initialize(model2_, worldTransform_.translation_, velocity);
 
-	//弾を登録する
-	bullets_.push_back(std::move(newBullet));
+		//弾を登録する
+		bullets_.push_back(std::move(newBullet));
+	}
+	if (color_ == 1) {
+		//弾の生成と初期化
+		std::unique_ptr<EnemyBullet> newBullet = std::make_unique<EnemyBullet>();
+		newBullet->Initialize(model3_, worldTransform_.translation_, velocity);
+
+		//弾を登録する
+		bullets_.push_back(std::move(newBullet));
+	}
+	
 }
 
 Vector3 Enemy::GetWorldPosition()

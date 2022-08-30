@@ -30,7 +30,7 @@ void EnemyBullet::Update()
 
 void EnemyBullet::Draw(const ViewProjection& viewProjection)
 {
-	model_->Draw(worldTransform_, viewProjection, textureHandle_);
+	model_->Draw(worldTransform_, viewProjection);
 }
 
 Vector3 EnemyBullet::GetWorldPosition()

@@ -76,6 +76,11 @@ private: // メンバ変数
 	Model* modelWorlddome_ = nullptr;
 	Model* playerModel_ = nullptr;
 
+	Model* bulletModel_b = nullptr;
+	Model* bulletModel_w = nullptr;
+
+	Model* enemyModel_ = nullptr;
+
 	//ワールドトランスフォーム
 	WorldTransform worldTransform_;
 	//ビュープロジェクション
