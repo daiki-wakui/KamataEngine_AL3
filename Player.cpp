@@ -29,9 +29,11 @@ void Player::Initialize(Model* model, Model* model2, Model* model3, Model* model
 	worldTransform_.Initialize();
 
 	worldTransform3DReticle_.Initialize();
+	playerColor = 0;
+	bullets_.clear();
 }
 
-void Player::Update(){
+void Player::Update(int start){
 	//ファイル名を指定してテクスチャを読み込む
 	if (playerColor == 0) {
 		textureHandle_ = TextureManager::Load("black.png");
@@ -50,55 +52,57 @@ void Player::Update(){
 	const float kMoveLimitY = 40.0f;
 	const float kMoveLimitZ = 70.0f;
 
+	if (start == 1) {
+		//移動関数
+		Move();
+		//回転関数
+		Rotate();
 
-	//移動関数
-	Move();
-	//回転関数
-	Rotate();
+		//弾を出す
+		Attack();
 
-	//弾を出す
-	Attack();
+		if (input_->PushKey(DIK_R)) {
+			worldTransform_.rotation_.z += 0.5f;
+		}
 
-	if (input_->PushKey(DIK_R)) {
-		worldTransform_.rotation_.z += 0.5f;
+		if (input_->TriggerKey(DIK_C)) {
+			isChange = true;
+
+			if (playerColor == 0) {
+				playerColor = 1;
+			}
+			else if (playerColor == 1) {
+				playerColor = 0;
+			}
+		}
+
+		if (isChange == true) {
+
+			if (state == 1) {
+				worldTransform_.rotation_.z -= 0.75f;
+				worldTransform_.translation_.x += dashSpeed;
+				dashSpeed -= 0.5f;
+			}
+			if (state == 2) {
+				worldTransform_.rotation_.z += 0.75f;
+				worldTransform_.translation_.x -= dashSpeed;
+				dashSpeed -= 0.5f;
+			}
+
+
+			if (worldTransform_.rotation_.z >= 6.5 || worldTransform_.rotation_.z <= -6.5) {
+				isChange = false;
+				worldTransform_.rotation_.z = 0;
+				dashSpeed = 4.0f;
+			}
+		}
+
+		//弾の更新処理
+		for (std::unique_ptr<PlayerBullet>& bullet : bullets_) {
+			bullet->Update();
+		}
 	}
-
-	if (input_->TriggerKey(DIK_C)) {
-		isChange = true;
-
-		if (playerColor == 0) {
-			playerColor = 1;
-		}
-		else if (playerColor == 1) {
-			playerColor = 0;
-		}
-	}
-
-	if (isChange == true) {
-
-		if (state == 1) {
-			worldTransform_.rotation_.z -= 0.75f;
-			worldTransform_.translation_.x += dashSpeed;
-			dashSpeed-=0.5f;
-		}
-		if (state == 2) {
-			worldTransform_.rotation_.z += 0.75f;
-			worldTransform_.translation_.x -= dashSpeed;
-			dashSpeed-=0.5f;
-		}
-		
-		
-		if (worldTransform_.rotation_.z >= 6.5|| worldTransform_.rotation_.z <= -6.5) {
-			isChange = false;
-			worldTransform_.rotation_.z = 0;
-			dashSpeed = 4.0f;
-		}
-	}
-
-	//弾の更新処理
-	for (std::unique_ptr<PlayerBullet>& bullet : bullets_) {
-		bullet->Update();
-	}
+	
 
 	//移動制限
 	worldTransform_.translation_.x = max(worldTransform_.translation_.x, -kMoveLimitX);
@@ -190,16 +194,16 @@ void Player::Move(){
 		}
 	}
 	if (input_->PushKey(DIK_UP)) {
-		move += { 0,0,0.5f };
+		move += { 0, 0.5f, 0 };
 	}
 	if (input_->PushKey(DIK_DOWN)) {
-		move += { 0,0,-0.5f };
+		move += { 0, -0.5f, 0 };
 	}
 	if (input_->PushKey(DIK_Z)) {
-		move += { 0, 0.5f, 0};
+		move += { 0, 0, 0.5f};
 	}
 	if (input_->PushKey(DIK_X)) {
-		move += { 0, -0.5f, 0};
+		move += { 0, 0, -0.5f};
 	}
 
 	worldTransform_.translation_ += move;
@@ -207,12 +211,6 @@ void Player::Move(){
 
 //回転関数
 void Player::Rotate(){
-	if (input_->PushKey(DIK_U)) {
-		worldTransform_.rotation_.y -= 0.05f;
-	}
-	else if (input_->PushKey(DIK_I)) {
-		worldTransform_.rotation_.y += 0.05f;
-	}
 }
 
 //弾の攻撃
@@ -256,15 +254,7 @@ void Player::Attack()
 
 			coolTime = 7;
 		}
-
-		debugText_->SetPos(20, 60);
-		debugText_->Printf(
-			"vec %f,%f,%f",
-			velocity.x, velocity.y, velocity.z);
 	}
-
-	
-
 }
 
 //ワールド座標を取得

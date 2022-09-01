@@ -34,6 +34,9 @@ private:
 
 	int colorCoolTime = 0;
 
+	
+	bool isDead_ = false;
+
 	//3Dレティクル用ワールド座標
 	WorldTransform worldTransform3DReticle_;
 
@@ -44,7 +47,7 @@ public:
 	int playerColor = 0;
 
 	void Initialize(Model* model, Model* model2, Model* model3, Model* model4);
-	void Update();
+	void Update(int start);
 	void Draw(ViewProjection &viewProjection);
 	void MatrixConvert();
 	void Move();
@@ -55,6 +58,7 @@ public:
 
 	//当たり判定
 	void OnCollision();
+	bool IsDead() const { return isDead_; }
 
 	void DrawUI();
 

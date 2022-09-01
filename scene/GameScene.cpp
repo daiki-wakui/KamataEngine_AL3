@@ -17,6 +17,9 @@ GameScene::~GameScene() {
 	delete playerModel_;
 	delete modelWorlddome_;
 	delete sprite_;
+	delete bulletModel_b;
+	delete bulletModel_w;
+	delete enemyModel_;
 }
 
 void GameScene::Initialize() {
@@ -28,6 +31,13 @@ void GameScene::Initialize() {
 
 	//デバッグカメラの生成
 	debugCamera_ = new DebugCamera(1280, 720);
+
+	BGMHandle_ = audio_->LoadWave("Sound/Electric Wild.wav");
+	BossBGMHandle_ = audio_->LoadWave("Sound/Alone.wav");
+	titleBGMHandle_ = audio_->LoadWave("Sound/PerituneMaterial.wav");
+
+	SEStartHandle_ = audio_->LoadWave("Sound/window.wav");
+	
 
 	uint32_t textureReticle = TextureManager::Load("ret.png");
 	UItextureHandle_ = TextureManager::Load("aim.png");
@@ -65,7 +75,6 @@ void GameScene::Initialize() {
 	PrimitiveDrawer::GetInstance()->SetViewProjection(&debugCamera_->GetViewProjection());
 
 	//天球(中側)
-	Skydome* newSkydome = new Skydome();
 	newSkydome->Initialize(modelSkydome_);
 	skydome_.reset(newSkydome);
 
@@ -86,14 +95,7 @@ void GameScene::Initialize() {
 	//enemy_->SetPlayer(newPlayer);
 
 	//敵の生成と初期化
-	for (int i = 0; i < 3; i++) {
-		std::unique_ptr<Enemy> newEnemy = std::make_unique<Enemy>();
-		newEnemy->Initialize(0,enemyModel_,bulletModel_b,bulletModel_w, worldTransform_.translation_, textureHandle_);
-		newEnemy->SetPlayer(newPlayer);
-
-		//敵を登録する
-		enemys_.push_back(std::move(newEnemy));
-	}
+	
 }
 
 
@@ -107,15 +109,46 @@ void GameScene::Update() {
 		isDebugCameraActive_ = false;
 	}
 #endif // _DEBUG
+	
+
+	if (input_->TriggerKey(DIK_L)) {
+		isStart = 0;
+		isPop = 0;
+		enemys_.clear();
+		frame = 0;
+		skydome_.release();
+		newSkydome->Initialize(modelSkydome_);
+		skydome_.reset(newSkydome);
+		player_.release();
+		newPlayer->Initialize(playerModel_, model_, bulletModel_b, bulletModel_w);
+		player_.reset(newPlayer);
+		playerColor = 0;
+		playerHp = 100;
+		playerisDead = 0;
+		isTitleBGM = 0;
+		audio_->StopWave(voiceBGMHandle_);
+	}
+
+	if (isTitleBGM == 0) {
+		voiceTitleHandle_ = audio_->PlayWave(titleBGMHandle_, true,(0.4f));
+		isTitleBGM = 1;
+	}
+	
 
 	//ゲームスタート
 	if (input_->TriggerKey(DIK_S)) {
+		audio_->PlayWave(SEStartHandle_);
+		voiceBGMHandle_ = audio_->PlayWave(BGMHandle_,true,(0.4f));
+		//voiceBossBGMHandle_ = audio_->PlayWave(BossBGMHandle_);
+		//audio_->PlayWave(BGMHandle_);
+		//audio_->PlayWave(BossBGMHandle_);
 		isStart = 1;
+		audio_->StopWave(voiceTitleHandle_);
 	}
 	//天球(外側)
 	worlddome_->UpdateN();
 	//player更新処理
-	player_->Update();
+	player_->Update(isStart);
 
 	//カメラワーク更新処理
 	CameraUpdate();
@@ -134,15 +167,143 @@ void GameScene::Update() {
 
 	//始まったら
 	if (isStart == 1) {
-		frame++;
+		#pragma region	敵発生
 
-		if (frame >= 50) {
+		if (isPop == 0) {
+			for (int i = 0; i < 3; i++) {
+				std::unique_ptr<Enemy> newEnemy = std::make_unique<Enemy>();
+				newEnemy->Initialize(isPop,0, enemyModel_, bulletModel_b, bulletModel_w, Vector3{ -20.0f * (i + 1),0,50.0f }, textureHandle_);
+				newEnemy->SetPlayer(newPlayer);
+
+				//敵を登録する
+				enemys_.push_back(std::move(newEnemy));
+			}
+			phase = 1;
+			isPop++;
+		}
+
+		if (isPop == 1 && frame >= 200) {
+			for (int i = 0; i < 3; i++) {
+				std::unique_ptr<Enemy> newEnemy = std::make_unique<Enemy>();
+				newEnemy->Initialize(isPop, 1, enemyModel_, bulletModel_b, bulletModel_w, Vector3{ 60.0f - 20.0f * (i + 1),0,50.0f }, textureHandle_);
+				newEnemy->SetPlayer(newPlayer);
+
+				//敵を登録する
+				enemys_.push_back(std::move(newEnemy));
+			}
+			phase = 2;
+			isPop++;
+		}
+
+		if (isPop == 2 && frame >= 400) {
+			for (int i = 0; i < 2; i++) {
+				std::unique_ptr<Enemy> newEnemy = std::make_unique<Enemy>();
+				newEnemy->Initialize(isPop, 0, enemyModel_, bulletModel_b, bulletModel_w, Vector3{ 60.0f - 20.0f * (i + 1),10.0f,50.0f }, textureHandle_);
+				newEnemy->SetPlayer(newPlayer);
+
+				//敵を登録する
+				enemys_.push_back(std::move(newEnemy));
+			}
+
+			for (int i = 0; i < 2; i++) {
+				std::unique_ptr<Enemy> newEnemy = std::make_unique<Enemy>();
+				newEnemy->Initialize(isPop, 1, enemyModel_, bulletModel_b, bulletModel_w, Vector3{ -20.0f * (i + 1),-10.0f,50.0f }, textureHandle_);
+				newEnemy->SetPlayer(newPlayer);
+
+				//敵を登録する
+				enemys_.push_back(std::move(newEnemy));
+			}
+			phase = 3;
+			isPop++;
+		}
+
+		if (isPop == 3 && frame >= 600) {
 			popEnemyTimer++;
 
 			if (popEnemyTimer >= 50) {
+				std::unique_ptr<Enemy> newEnemy = std::make_unique<Enemy>();
+				newEnemy->Initialize(isPop, 1, enemyModel_, bulletModel_b, bulletModel_w, Vector3{ 20.0f - 20.0f * popPos,10.0f,50.0f }, textureHandle_);
+				newEnemy->SetPlayer(newPlayer);
+
+				//敵を登録する
+				enemys_.push_back(std::move(newEnemy));
+
 				popEnemyTimer = 0;
+				popPos++;
 			}
+
+			phase = 4;
+
+			if (popPos == 6) {
+				isPop++;
+			}
+		}
+
+		if (isPop == 4 && frame >= 800) {
+			popEnemyTimer++;
+
+			if (popEnemyTimer >= 75) {
+				std::unique_ptr<Enemy> newEnemy = std::make_unique<Enemy>();
+				newEnemy->Initialize(isPop, 0, enemyModel_, bulletModel_b, bulletModel_w, Vector3{ 30.0f - 20.0f * popPos,10.0f,50.0f }, textureHandle_);
+				newEnemy->SetPlayer(newPlayer);
+				//敵を登録する
+				enemys_.push_back(std::move(newEnemy));
+
+				std::unique_ptr<Enemy> newEnemy2 = std::make_unique<Enemy>();
+				newEnemy2->Initialize(isPop, 1, enemyModel_, bulletModel_b, bulletModel_w, Vector3{ -30.0f + 20.0f * popPos,-10.0f,50.0f }, textureHandle_);
+				newEnemy2->SetPlayer(newPlayer);
+				//敵を登録する
+				enemys_.push_back(std::move(newEnemy2));
 			
+				popEnemyTimer = 0;
+				popPos++;
+			}
+
+			phase = 5;
+
+			if (popPos == 5) {
+				isPop++;
+			}
+		}
+
+		if (isPop == 5 && frame >= 1200) {
+			audio_->StopWave(voiceBGMHandle_);
+			voiceBossBGMHandle_ = audio_->PlayWave(BossBGMHandle_);
+
+			std::unique_ptr<Enemy> newEnemy = std::make_unique<Enemy>();
+			newEnemy->BossInitialize(isPop, 0, enemyModel_, bulletModel_b, bulletModel_w, Vector3{ 0.0f,15.0f,200.0f }, textureHandle_);
+			newEnemy->SetPlayer(newPlayer);
+			//敵を登録する
+			enemys_.push_back(std::move(newEnemy));
+
+			std::unique_ptr<Enemy> newEnemy2 = std::make_unique<Enemy>();
+			newEnemy2->BossInitialize(isPop, 1, enemyModel_, bulletModel_b, bulletModel_w, Vector3{ 0.0f,-15.0f,200.0f }, textureHandle_);
+			newEnemy2->SetPlayer(newPlayer);
+			//敵を登録する
+			enemys_.push_back(std::move(newEnemy2));
+
+			phase = 6;
+			if (enemys_.size() == 2) {
+				isPop++;
+			}
+		}
+
+		if (enemys_.size() == 0) {
+			frame++;
+			popPos = 0;
+			audio_->StopWave(voiceBossBGMHandle_);
+		}
+
+		#pragma endregion
+		
+
+		//enemyの死亡フラグ
+		enemys_.remove_if([](std::unique_ptr<Enemy>& enemy) {
+			return enemy->IsDead();
+		});
+
+		if (playerHp <= 0) {
+			playerisDead = true;
 		}
 
 		//天球(内側)
@@ -151,8 +312,10 @@ void GameScene::Update() {
 		/*if (enemy_) {
 			enemy_->Update();
 		}*/
+
+		//敵の動き
 		for (std::unique_ptr<Enemy>& enemy : enemys_) {
-			enemy->Update();
+			enemy->Update(phase);
 		}
 
 	}
@@ -197,6 +360,16 @@ void GameScene::Update() {
 	debugText_->Printf("frame %d", frame);
 	debugText_->SetPos(20, 40);
 	debugText_->Printf("pop %d", popEnemyTimer);
+	debugText_->SetPos(20, 60);
+	debugText_->Printf("enemy %d", enemys_.size());
+	debugText_->SetPos(20, 80);
+	debugText_->Printf("hp %d", playerHp);
+	debugText_->SetPos(20, 100);
+	debugText_->Printf("isDead %d", playerisDead);
+	debugText_->SetPos(20, 120);
+	debugText_->Printf("ispop %d", isPop);
+	debugText_->SetPos(20, 140);
+	debugText_->Printf("poppos %d", popPos);
 }
 
 void GameScene::Draw() {
@@ -245,7 +418,9 @@ void GameScene::Draw() {
 		}
 	}
 
-	player_->Draw(viewProjection_);
+	if (playerisDead == false) {
+		player_->Draw(viewProjection_);
+	}
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
@@ -313,8 +488,17 @@ void GameScene::CheakAllCollisions(){
 			Vector3 dis = posB - posA;
 
 			if ((dis.x * dis.x) + (dis.y * dis.y) + (dis.z * dis.z) <= (r * r)) {
+
+
 				player_->OnCollision();
 				bullet->OnCollision();
+
+				if (playerColor == 0 && enemy->GetEnemyColor() == 1) {
+					playerHp -= 10;
+				}
+				else if (playerColor == 1 && enemy->GetEnemyColor()==0) {
+					playerHp -= 10;
+				}
 			}
 		}
 	}
@@ -332,7 +516,7 @@ void GameScene::CheakAllCollisions(){
 			posB = bullet->GetWorldPosition();
 
 			//AとBの距離
-			float r1 = enemy->worldTransform_.scale_.x;
+			float r1 = enemy->worldTransform_.scale_.x*3;
 			float r2 = bullet->worldTransform_.scale_.x;
 			float r = r1 + r2;
 

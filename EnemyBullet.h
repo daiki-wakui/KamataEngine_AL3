@@ -18,8 +18,11 @@ public:
 
 	//‰Šú‰»
 	void Initialize(Model* model, const Vector3& position, const Vector3& velocity);
+	void bossInitialize(Model* model, const Vector3& position, const Vector3& velocity);
+	void bossInitialize2(Model* model, const Vector3& position, const Vector3& velocity);
 	//XVˆ—
 	void Update();
+	void bossUpdate();
 	//•`‰æˆ—
 	void Draw(const ViewProjection& viewProjection);
 

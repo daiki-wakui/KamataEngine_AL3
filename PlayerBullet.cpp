@@ -35,14 +35,6 @@ void PlayerBullet::Initialize2(Model* model, const Vector3& position, const Vect
 	model_ = model;
 	velocity_ = velocity;
 
-	/*if (color == 0) {
-		textureHandle_ = TextureManager::Load("black.png");
-	}
-	if (color == 1) {
-		textureHandle_ = TextureManager::Load("white.png");
-	}*/
-
-
 	//ƒ[ƒ‹ƒhÀ•W•ÏŠ·‚Ì‰Šú‰»
 	worldTransform_.Initialize();
 
