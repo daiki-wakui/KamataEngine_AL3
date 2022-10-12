@@ -28,7 +28,7 @@ private:
 	Vector3	differenceVec;
 
 	int color_ = 0;
-	int hp = 1;
+	int hp = 5;
 
 	int isBoss = 0;
 	int bossAction = 0;
@@ -70,6 +70,7 @@ public:
 	bool IsDead() const { return isDead_; }
 
 	int GetEnemyColor() { return color_; }
+	int GetIsBoss() { return isBoss; }
 
 	//’eƒŠƒXƒg‚ðŽæ“¾
 	const std::list<std::unique_ptr<EnemyBullet>>& GetBullets() { return bullets_; }

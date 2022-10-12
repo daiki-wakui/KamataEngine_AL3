@@ -16,13 +16,11 @@ void Player::Initialize(Model* model, Model* model2, Model* model3, Model* model
 	model3_ = model3;
 	model4_ = model4;
 
-	/*bulletModel_b = Model::CreateFromOBJ("playerBullet_Black",true);
-	bulletModel_w = Model::CreateFromOBJ("playerBullet_White",true);*/
-
 	input_ = Input::GetInstance();
 	debugText_ = DebugText::GetInstance();
 
 	worldTransform_.scale_ = { 3,3,3 };
+	worldTransform_.rotation_ = { 0,0,0 };
 	worldTransform_.translation_ = { 0,-18,0 };
 
 	//ワールド座標変換の初期化
@@ -34,6 +32,7 @@ void Player::Initialize(Model* model, Model* model2, Model* model3, Model* model
 }
 
 void Player::Update(int start){
+
 	//ファイル名を指定してテクスチャを読み込む
 	if (playerColor == 0) {
 		textureHandle_ = TextureManager::Load("black.png");
@@ -61,12 +60,13 @@ void Player::Update(int start){
 		//弾を出す
 		Attack();
 
-		if (input_->PushKey(DIK_R)) {
-			worldTransform_.rotation_.z += 0.5f;
-		}
-
 		if (input_->TriggerKey(DIK_C)) {
-			isChange = true;
+
+			if (isChange == false) {
+				worldTransform_.rotation_.z = 0.0f;
+				dashSpeed = 4.0f;
+				isChange = true;
+			}
 
 			if (playerColor == 0) {
 				playerColor = 1;
@@ -93,7 +93,7 @@ void Player::Update(int start){
 			if (worldTransform_.rotation_.z >= 6.5 || worldTransform_.rotation_.z <= -6.5) {
 				isChange = false;
 				worldTransform_.rotation_.z = 0;
-				dashSpeed = 4.0f;
+				
 			}
 		}
 
@@ -133,26 +133,13 @@ void Player::Update(int start){
 	worldTransform3DReticle_.MatrixConvert();
 	worldTransform3DReticle_.TransferMatrix();
 
-	//デバッグ
-	
-	/*debugText_->SetPos(20, 100);
-	debugText_->Printf("%f",worldTransform_.rotation_.z);
-
-	debugText_->SetPos(20, 120);
-	debugText_->Printf("%d", state);
-
-	debugText_->SetPos(20, 60);
-	debugText_->Printf("UP/DOWN/RIGHT/LEFT Key PlayerMove");
-
-	debugText_->SetPos(20, 80);
-	debugText_->Printf("SPACE Key PlayerBullet");*/
 }
 
 //描画関数
 void Player::Draw(ViewProjection &viewProjection){
 	//3Dモデル描画
 	model_->Draw(worldTransform_, viewProjection, textureHandle_);
-	model2_->Draw(worldTransform3DReticle_, viewProjection, textureHandle_);
+	//model2_->Draw(worldTransform3DReticle_, viewProjection, textureHandle_);
 
 	for (std::unique_ptr<PlayerBullet>& bullet : bullets_){
 		bullet->Draw(viewProjection);
@@ -182,28 +169,78 @@ void Player::Move(){
 	move = { 0,0,0 };
 
 	if (input_->PushKey(DIK_RIGHT)) {
-		move += { 0.5f,0,0 };
+		move += { 0.5f, 0, 0 };
 		if (isChange == false) {
 			state = 1;
+			worldTransform_.rotation_.z -= 0.025f;
+
+			if (worldTransform_.rotation_.z <= -0.25f) {
+				worldTransform_.rotation_.z = -0.25f;
+			}
 		}
 	}
+	else if (isChange == false && worldTransform_.rotation_.z <= 0.0f) {
+		worldTransform_.rotation_.z += 0.025f;
+		if (worldTransform_.rotation_.z >= 0.0f) {
+			worldTransform_.rotation_.z = 0.0f;
+		}
+	}
+
 	if (input_->PushKey(DIK_LEFT)) {
 		move += { -0.5f,0,0 };
 		if (isChange == false) {
 			state = 2;
+
+			worldTransform_.rotation_.z += 0.025f;
+
+			if (worldTransform_.rotation_.z >= 0.25f) {
+				worldTransform_.rotation_.z = 0.25f;
+			}
 		}
 	}
+	else if (isChange == false && worldTransform_.rotation_.z >= 0.0f) {
+		worldTransform_.rotation_.z -= 0.025f;
+		if (worldTransform_.rotation_.z <= 0.0f) {
+			worldTransform_.rotation_.z = 0.0f;
+		}
+	}
+
 	if (input_->PushKey(DIK_UP)) {
 		move += { 0, 0.5f, 0 };
 	}
 	if (input_->PushKey(DIK_DOWN)) {
 		move += { 0, -0.5f, 0 };
 	}
-	if (input_->PushKey(DIK_Z)) {
-		move += { 0, 0, 0.5f};
-	}
 	if (input_->PushKey(DIK_X)) {
+		move += { 0, 0, 0.5f};
+
+		worldTransform_.rotation_.x += 0.02f;
+
+		if (worldTransform_.rotation_.x >= 0.2f) {
+			worldTransform_.rotation_.x = 0.2f;
+		}
+	}
+	else if (isChange == false && worldTransform_.rotation_.x >= 0.0f) {
+		worldTransform_.rotation_.x -= 0.02f;
+		if (worldTransform_.rotation_.x <= 0.0f) {
+			worldTransform_.rotation_.x = 0.0f;
+		}
+	}
+
+	if (input_->PushKey(DIK_Z)) {
 		move += { 0, 0, -0.5f};
+
+		worldTransform_.rotation_.x -= 0.02f;
+
+		if (worldTransform_.rotation_.x <= -0.2f) {
+			worldTransform_.rotation_.x = -0.2f;
+		}
+	}
+	else if (isChange == false && worldTransform_.rotation_.x <= 0.0f) {
+		worldTransform_.rotation_.x += 0.02f;
+		if (worldTransform_.rotation_.x >= 0.0f) {
+			worldTransform_.rotation_.x = 0.0f;
+		}
 	}
 
 	worldTransform_.translation_ += move;

@@ -103,7 +103,7 @@ void Enemy::BossInitialize(int& phase,int color, Model* model, Model* model2, Mo
 	worldTransform_.scale_ = { 10,10,10 };
 	worldTransform_.translation_ = position;
 
-	hp = 100;
+	hp = 75;
 	isBoss = 1;
 
 	/*addSpeed.x = 0.005f;
@@ -355,8 +355,6 @@ void Enemy::Update(int& phase){
 			bullet->bossUpdate();
 		}
 	}
-	debugText_->SetPos(20, 160);
-	debugText_->Printf("switch %d", switchTimer);
 
 	worldTransform_.MatrixConvert();
 	worldTransform_.TransferMatrix();

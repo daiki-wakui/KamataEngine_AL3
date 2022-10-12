@@ -62,6 +62,8 @@ public:
 
 	void DrawUI();
 
+	int GetCoolTime() { return coolTime; }
+
 	//’eƒŠƒXƒg‚ğæ“¾
 	const std::list<std::unique_ptr<PlayerBullet>>& GetBullets() { return bullets_; }
 };

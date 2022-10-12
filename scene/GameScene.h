@@ -64,18 +64,59 @@ private: // メンバ変数
 	uint32_t voiceTitleHandle_ = 0;
 	int isTitleBGM = 0;
 
+	uint32_t SEWindowHandle_ = 0;
 	uint32_t SEStartHandle_ = 0;
+	uint32_t SEHitHandle_ = 0;
+	uint32_t SEShotHandle_ = 0;
+	uint32_t SEDamageHandle_ = 0;
+	uint32_t SEChangeHandle_ = 0;
+	uint32_t SEGuradHandle_ = 0;
+	uint32_t SEWinHandle_ = 0;
+
 
 	//テクスチャハンドル
 	uint32_t textureHandle_ = 0;
 
-	uint32_t UItextureHandle_ = 0;
-	uint32_t UItextureHandleBlack_ = 0;
+	//UI
+	uint32_t UIHPHandle_ = 0;
+	uint32_t UIReticleHandle_ = 0;
+	uint32_t UISideReticleHandle_ = 0;
 	uint32_t UItextureHandleTitle_ = 0;
+	uint32_t UIWhiteHandle_ = 0;
+	uint32_t UIBlackHandle_ = 0;
+	uint32_t UIHPFontHandle_[11] = {};
+	uint32_t UIDamageHandle_ = 0;
+	uint32_t UIGuardBlackHandle_ = 0;
+	uint32_t UIGuardWhiteHandle_ = 0;
+	uint32_t UIClearHandle_ = 0;
+	uint32_t UIGameOverHandle_ = 0;
+	uint32_t UIEx1Handle_ = 0;
+	uint32_t UIEx2Handle_ = 0;
 
-	Sprite* sprite_ = nullptr;
-	Sprite* spriteBlack_ = nullptr;
 	Sprite* spriteTitle_ = nullptr;
+	Sprite* spriteHP_ = nullptr;
+	Sprite* spriteReticle_ = nullptr;
+	Sprite* spriteSideReticle_ = nullptr;
+	Sprite* spriteWhite_ = nullptr;
+	Sprite* spriteBlack_ = nullptr;
+	Sprite* spriteHP0_ = nullptr;
+	Sprite* spriteHP10_ = nullptr;
+	Sprite* spriteHP20_ = nullptr;
+	Sprite* spriteHP30_ = nullptr;
+	Sprite* spriteHP40_ = nullptr;
+	Sprite* spriteHP50_ = nullptr;
+	Sprite* spriteHP60_ = nullptr;
+	Sprite* spriteHP70_ = nullptr;
+	Sprite* spriteHP80_ = nullptr;
+	Sprite* spriteHP90_ = nullptr;
+	Sprite* spriteHP100_ = nullptr;
+	Sprite* spriteDamage_ = nullptr;
+	Sprite* spriteGuardBlack_ = nullptr;
+	Sprite* spriteGuardWhite_ = nullptr;
+	Sprite* spriteClear_ = nullptr;
+	Sprite* spriteGameOver_ = nullptr;
+	Sprite* spriteEx1_ = nullptr;
+	Sprite* spriteEx2_ = nullptr;
 
 	//デバッグカメラ
 	DebugCamera* debugCamera_ = nullptr;
@@ -117,6 +158,14 @@ private: // メンバ変数
 	int playerColor = 0;
 	int playerHp = 100;
 	bool playerisDead = false;
+	int coolTime = 5;
+
+	int isPlayerDamage = 0;
+	int isPlayerGuardBlack = 0;
+	int isPlayerGuardWhite = 0;
+	int invincibleTime = 0;
+	int playerFlash = 0;
+	int GuardTime = 0;
 
 	int phase = 0;
 	int isPop = 0;
@@ -124,6 +173,15 @@ private: // メンバ変数
 	int popEnemyTimer = 0;
 	int popPos = 0;
 	int enemyColor = 0;
+
+	int isClear = 0;
+
+	int isShake = 0;
+	float randX = 0.5f;
+	int timer = 0;
+	int shakeTime = 0;
+	int tutorial = 0;
+	int tutorialPoint[3] = {0,0,0};
 
 	//衝突判定
 	void CheakAllCollisions();
